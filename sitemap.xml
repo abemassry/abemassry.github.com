@@ -1,15 +1,15 @@
 <?xml version='1.0' encoding='UTF-8'?>
 <urlset xmlns='http://www.sitemaps.org/schemas/sitemap/0.9'>
     <url>
-        <loc>http://abemassry.github.com/blog/2012/10/22/first-post/</loc>
+        <loc>http://abemassry.com/blog/2012/10/22/first-post/</loc>
         <lastmod>2012-10-22T14:53:51-04:00</lastmod>
     </url>
     <url>
-        <loc>http://abemassry.github.com/blog/archives/</loc>
+        <loc>http://abemassry.com/blog/archives/</loc>
         <lastmod>2012-10-22T14:53:51-04:00</lastmod>
     </url>
     <url>
-        <loc>http://abemassry.github.com/</loc>
+        <loc>http://abemassry.com/</loc>
         <lastmod>2012-10-22T14:53:51-04:00</lastmod>
     </url>
 </urlset>
