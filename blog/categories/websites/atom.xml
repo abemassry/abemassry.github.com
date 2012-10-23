@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: websites | Abe Massry]]></title>
+  <link href="http://abemassry.com/blog/categories/websites/atom.xml" rel="self"/>
+  <link href="http://abemassry.com/"/>
+  <updated>2012-10-23T15:27:35-04:00</updated>
+  <id>http://abemassry.com/</id>
+  <author>
+    <name><![CDATA[Abe Massry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[mashrd]]></title>
+    <link href="http://abemassry.com/blog/2012/10/23/mashrd/"/>
+    <updated>2012-10-23T14:53:00-04:00</updated>
+    <id>http://abemassry.com/blog/2012/10/23/mashrd</id>
+    <content type="html"><![CDATA[<h1>mashrd - Real-time News with Node.js and socket.io</h1>
+
+<p>TL;DR version: I made a new site called <a href="http://mashrd.com">mashrd</a>, check it out and let me know what you think.</p>
+
+<p>I wanted to try out node.js and socket.io but I wasn't sure what kind of webapp I wanted to build with the technology.  I usually try to build something that isn't out there yet and something that hasn't been done before, at least to my knowledge.  So I've had this idea for a while about a news twitter mashup where the site was organized like reddit or the old digg but using tweets instead.  After looking at some of the data I was getting I decided to include facebook likes and google plus shares.</p>
+
+<p>The first issue was learning node.js for that I went through all of Pedro Teixeira's <a href="http://http://nodetuts.com/">Node Tuts</a> videos.  They were very informative and while some of the code that he was using has changed based on the new versions of the software, it really helped because of his choice in exercises.  He showed many parts of the ecosystem for node.js and when the code had changed you could either look in the comments on the same page or, some quick googling could find the right answer.</p>
+
+<h3>Real-time News</h3>
+
+<p>After getting the real-time aspect of the site working from a websockets point of view I needed some actual news on the site.  This could be done by manually submitting but it would require a massive army of submitters.  I used feeds from various news sites most of which I read and some that I found out about by making this site.  I also tried to keep the listing of sites level from all sides, while people on the news fringes will still find something interesting to read.  If you have a site that you think should be included, send me an email or a tweet.</p>
+
+<h3>app.net</h3>
+
+<p>I really wanted to include app.net but I could not find an app.net button.  When app.net gets a button (or I find it) I would like to make a site like this one specifically for app.net because I like the mission and it deserves its own webapp.</p>
+
+<h3>Feedback</h3>
+
+<p>Try it out and let me know what you think.  I'll scour these comments obsessively to get feedback and try to change anything I see.  Thanks for taking a look.</p>
+
+<p><a href="http://mashrd.com">mashrd - Real-time News Now</a></p>
+]]></content>
+  </entry>
+  
+</feed>

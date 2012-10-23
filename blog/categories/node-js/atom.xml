@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: node.js | Abe Massry]]></title>
+  <link href="http://abemassry.com/blog/categories/node-js/atom.xml" rel="self"/>
+  <link href="http://abemassry.com/"/>
+  <updated>2012-10-23T15:27:35-04:00</updated>
+  <id>http://abemassry.com/</id>
+  <author>
+    <name><![CDATA[Abe Massry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[mashrd update]]></title>
+    <link href="http://abemassry.com/blog/2012/10/23/mashrd-update/"/>
+    <updated>2012-10-23T15:23:00-04:00</updated>
+    <id>http://abemassry.com/blog/2012/10/23/mashrd-update</id>
+    <content type="html"><![CDATA[<p>Just wanted to tell you about some of the design choices for mashrd. I wanted to support the big social networks to start out with. I really wanted to have App.net but I could not find a button for them. Buffer, bufferapp.com has a button but I had trouble integrating it and I will delve deeper into the API soon. The other issue is for the popular page the network with the highest count gets the button. So that is usually Facebook or Twitter. When App.net has a button I can make a companion site with App.net as it's own news listing site, if there is demand for it.  I co-posted this post on the mashrd about page as well as here. <a href="http://mashrd.com/about">About mashrd</a></p>
+]]></content>
+  </entry>
+  
+</feed>
