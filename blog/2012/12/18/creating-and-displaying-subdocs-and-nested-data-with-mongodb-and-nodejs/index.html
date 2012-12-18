@@ -1,24 +1,108 @@
-<?xml version="1.0" encoding="utf-8"?>
-<feed xmlns="http://www.w3.org/2005/Atom">
 
-  <title><![CDATA[Abe Massry]]></title>
-  <link href="http://abemassry.com/atom.xml" rel="self"/>
-  <link href="http://abemassry.com/"/>
-  <updated>2012-12-18T13:35:15-05:00</updated>
-  <id>http://abemassry.com/</id>
-  <author>
-    <name><![CDATA[Abe Massry]]></name>
-    
-  </author>
-  <generator uri="http://octopress.org/">Octopress</generator>
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Creating and Displaying subdocs and Nested Data with mongodb and nodejs - Abe Massry</title>
+  <meta name="author" content="Abe Massry">
 
   
-  <entry>
-    <title type="html"><![CDATA[Creating and Displaying subdocs and Nested Data with mongodb and nodejs]]></title>
-    <link href="http://abemassry.com/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs/"/>
-    <updated>2012-12-18T13:27:00-05:00</updated>
-    <id>http://abemassry.com/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs</id>
-    <content type="html"><![CDATA[<p>If I was using MySQL and creating tables for a relational database I have a couple of ways to show comments and likes for an article on a blog for example.  The first way is to select my post from a table and then based on that ID of the post select my comments and likes for that post.  If I have properly normalized my tables this works well.  The problem with this is requires extra processing in my application code.  The next way is to use a join and write MySQL code to join the tables where there is a match and output the results.  This is ok but it requires more MySQL processing.</p>
+  <meta name="description" content="If I was using MySQL and creating tables for a relational database I have a couple of ways to show comments and likes for an article on a blog for &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://abemassry.com/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Abe Massry" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-35802076-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Abe Massry</a></h1>
+  
+    <h2>Web Development and Building Businesses</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:abemassry.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Creating and Displaying Subdocs and Nested Data With Mongodb and Nodejs</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2012-12-18T13:27:00-05:00" pubdate data-updated="true">Dec 18<span>th</span>, 2012</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>If I was using MySQL and creating tables for a relational database I have a couple of ways to show comments and likes for an article on a blog for example.  The first way is to select my post from a table and then based on that ID of the post select my comments and likes for that post.  If I have properly normalized my tables this works well.  The problem with this is requires extra processing in my application code.  The next way is to use a join and write MySQL code to join the tables where there is a match and output the results.  This is ok but it requires more MySQL processing.</p>
 
 <p>The question becomes how to do this in mongodb, a document oriented database without tables.  This turns out to be simpler to do and understand than the MySQL equivalent.</p>
 
@@ -223,90 +307,204 @@
 
 
 <p>If you see an area where the code can be improved let me know.  I&#8217;d like to incorporate all of this into a framework at some point.</p>
-]]></content>
-  </entry>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
   
-  <entry>
-    <title type="html"><![CDATA[What Entrepreneurs can Learn from LOST]]></title>
-    <link href="http://abemassry.com/blog/2012/12/03/what-entrepreneurs-can-learn-from-lost/"/>
-    <updated>2012-12-03T11:01:00-05:00</updated>
-    <id>http://abemassry.com/blog/2012/12/03/what-entrepreneurs-can-learn-from-lost</id>
-    <content type="html"><![CDATA[<p>The TV show Lost managed to nail three things right in the product category: the right product, the right place, and the right time.</p>
 
-<p>Originally I didn’t catch Lost when it aired on TV, I marathoned all the seasons when they were released on netflix.  But after watching the show I could see why my friends and coworkers were hooked.  I didn’t put the connection together till now, of how the show could be applied to everyday life.</p>
+<span class="byline author vcard">Posted by <span class="fn">Abe Massry</span></span>
 
-<h2>It was one of the first shows to wholeheartedly make the jump to HD.</h2>
+      
 
-<p>When it first aired to when it ended, it made the jump to HD and was better for it.  The cinematographers really took advantage of not only the higher resolutions but also the lush landscapes that were present in the show because they were shooting on location.  This had to do with the timing and taking advantage of the technology that was present at the time.</p>
 
-<h2>It was available on DVD after the season had aired.</h2>
 
-<p>While DVD is not an HD viewing experience per se, the quality was a lot better than VHS tapes.  And while there were other shows that did this as well, they nailed this one as well.</p>
 
-<h2>It was available for online streaming.</h2>
 
-<p>Hulu was starting to come out with content at the time, but ABC had its own streaming solution from its site.  Whether or not you agree with either of these, people could still watch it on the internet at their leisure, not encumbered by when it aired.  They could also see higher quality video then if they had set their VCRs to record it.  In addition DVRs were starting to come into prominence and it had the same benefit as online streaming when it came to picture quality.</p>
 
-<p>So I keep belaboring quality when it comes to all these things, what made this particular show so special, there were other HD shows at the time, some of them even filmed on location.  It was the fact that it was filmed on location with an almost cinema quality, the writing was able to capture the audience in a way that kept them coming back week after week and the actors were able to execute the story in a way that it was believable that they were trapped on this faraway island.</p>
 
-<p>In total they had the right product, the right team to execute it, and they benefitted from producing the show at the right time that all of these auxiliary technologies came together and facilitated getting the product produced at a high quality into the hands of the viewers.  They also had the insight to know which tech to pursue and how to use it effectively.</p>
-]]></content>
-  </entry>
+
   
-  <entry>
-    <title type="html"><![CDATA[Observations on mashrd]]></title>
-    <link href="http://abemassry.com/blog/2012/10/23/observations-on-mashrd/"/>
-    <updated>2012-10-23T15:40:00-04:00</updated>
-    <id>http://abemassry.com/blog/2012/10/23/observations-on-mashrd</id>
-    <content type="html"><![CDATA[<p>Just a quick observation, it seems like more stories that make it to the popular section are about either politics or Apple products.  I might make a chart and have graphs to back up my observations next time.  But it makes sense given the time of year it is and the election is happening in a week and Apple just unveiled more products.  Still there is a lot of news that doesn&#8217;t see the light of day.  Not sure if it&#8217;s a good thing or a bad thing.</p>
-]]></content>
-  </entry>
+
+
+<time datetime="2012-12-18T13:27:00-05:00" pubdate data-updated="true">Dec 18<span>th</span>, 2012</time>
+      
+
+<span class="categories">
   
-  <entry>
-    <title type="html"><![CDATA[mashrd update]]></title>
-    <link href="http://abemassry.com/blog/2012/10/23/mashrd-update/"/>
-    <updated>2012-10-23T15:23:00-04:00</updated>
-    <id>http://abemassry.com/blog/2012/10/23/mashrd-update</id>
-    <content type="html"><![CDATA[<p>Just wanted to tell you about some of the design choices for mashrd. I wanted to support the big social networks to start out with. I really wanted to have App.net but I could not find a button for them. Buffer, bufferapp.com has a button but I had trouble integrating it and I will delve deeper into the API soon. The other issue is for the popular page the network with the highest count gets the button. So that is usually Facebook or Twitter. When App.net has a button I can make a companion site with App.net as it&#8217;s own news listing site, if there is demand for it.  I co-posted this post on the mashrd about page as well as here. <a href="http://mashrd.com/about">About mashrd</a></p>
-]]></content>
-  </entry>
+    <a class='category' href='/blog/categories/express/'>express</a>, <a class='category' href='/blog/categories/jade/'>jade</a>, <a class='category' href='/blog/categories/mongodb/'>mongodb</a>, <a class='category' href='/blog/categories/mongoose/'>mongoose</a>, <a class='category' href='/blog/categories/nodejs/'>nodejs</a>, <a class='category' href='/blog/categories/nosql/'>nosql</a>
   
-  <entry>
-    <title type="html"><![CDATA[mashrd]]></title>
-    <link href="http://abemassry.com/blog/2012/10/23/mashrd/"/>
-    <updated>2012-10-23T14:53:00-04:00</updated>
-    <id>http://abemassry.com/blog/2012/10/23/mashrd</id>
-    <content type="html"><![CDATA[<h1>mashrd - Real-time News with Node.js and socket.io</h1>
+</span>
 
-<p>TL;DR version: I made a new site called <a href="http://mashrd.com">mashrd</a>, check it out and let me know what you think.</p>
 
-<p>I wanted to try out node.js and socket.io but I wasn&#8217;t sure what kind of webapp I wanted to build with the technology.  I usually try to build something that isn&#8217;t out there yet and something that hasn&#8217;t been done before, at least to my knowledge.  So I&#8217;ve had this idea for a while about a news twitter mashup where the site was organized like reddit or the old digg but using tweets instead.  After looking at some of the data I was getting I decided to include facebook likes and google plus shares.</p>
-
-<p>The first issue was learning node.js for that I went through all of Pedro Teixeira&#8217;s <a href="http://http://nodetuts.com/">Node Tuts</a> videos.  They were very informative and while some of the code that he was using has changed based on the new versions of the software, it really helped because of his choice in exercises.  He showed many parts of the ecosystem for node.js and when the code had changed you could either look in the comments on the same page or, some quick googling could find the right answer.</p>
-
-<h3>Real-time News</h3>
-
-<p>After getting the real-time aspect of the site working from a websockets point of view I needed some actual news on the site.  This could be done by manually submitting but it would require a massive army of submitters.  I used feeds from various news sites most of which I read and some that I found out about by making this site.  I also tried to keep the listing of sites level from all sides, while people on the news fringes will still find something interesting to read.  If you have a site that you think should be included, send me an email or a tweet.</p>
-
-<h3>app.net</h3>
-
-<p>I really wanted to include app.net but I could not find an app.net button.  When app.net gets a button (or I find it) I would like to make a site like this one specifically for app.net because I like the mission and it deserves its own webapp.</p>
-
-<h3>Feedback</h3>
-
-<p>Try it out and let me know what you think.  I&#8217;ll scour these comments obsessively to get feedback and try to change anything I see.  Thanks for taking a look.</p>
-
-<p><a href="http://mashrd.com">mashrd - Real-time News Now</a></p>
-]]></content>
-  </entry>
+    </p>
+    
+      <div class="sharing">
   
-  <entry>
-    <title type="html"><![CDATA[First Post]]></title>
-    <link href="http://abemassry.com/blog/2012/10/22/first-post/"/>
-    <updated>2012-10-22T14:52:00-04:00</updated>
-    <id>http://abemassry.com/blog/2012/10/22/first-post</id>
-    <content type="html"><![CDATA[<p>The very first post of this fine blog.</p>
-]]></content>
-  </entry>
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://abemassry.com/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs/" data-via="abemassry" data-counturl="http://abemassry.com/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs/" >Tweet</a>
   
-</feed>
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2012/12/03/what-entrepreneurs-can-learn-from-lost/" title="Previous Post: What Entrepreneurs can Learn from LOST">&laquo; What Entrepreneurs can Learn from LOST</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs/">Creating and Displaying subdocs and Nested Data with mongodb and nodejs</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/12/03/what-entrepreneurs-can-learn-from-lost/">What Entrepreneurs can Learn from LOST</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/23/observations-on-mashrd/">Observations on mashrd</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/23/mashrd-update/">mashrd update</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2012/10/23/mashrd/">mashrd</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/abemassry">@abemassry</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'abemassry',
+            count: 3,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("abemassry", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/abemassry" class="twitter-follow-button" data-show-count="false">Follow @abemassry</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2012 - Abe Massry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'abemassry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://abemassry.com/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs/';
+        var disqus_url = 'http://abemassry.com/blog/2012/12/18/creating-and-displaying-subdocs-and-nested-data-with-mongodb-and-nodejs/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
