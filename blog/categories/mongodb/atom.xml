@@ -4,7 +4,7 @@
   <title><![CDATA[Category: mongodb | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/mongodb/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2012-12-18T13:35:15-05:00</updated>
+  <updated>2012-12-18T13:40:41-05:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -24,8 +24,7 @@
 
 <h3>1. Set up your document Schema</h3>
 
-<pre><code>For this code I'm using Node.js and mongoose to talk to mongodb, and jade to display.
-</code></pre>
+<p>For this code I'm using Node.js and mongoose to talk to mongodb, and jade to display.</p>
 
 <p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Set Up Schema - schema.js </span></figcaption>
  <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
@@ -102,15 +101,12 @@
 </span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<pre><code>The main schema is the "var schema" this is the blog post.  The blog post contains likes and comments, of each there will be many.  Those are stored in objects and there can be multiple objects in each of the likes and comments.  The advantage of this is that you can make one database call and get all the information about a post at once, so you need less application to database communication.  And it is also easier to understand when you think about this.  For example you can add a tag schema store in another object and it can have an arbitrary number of tags.
-</code></pre>
+<p>The main schema is the "var schema" this is the blog post.  The blog post contains likes and comments, of each there will be many.  Those are stored in objects and there can be multiple objects in each of the likes and comments.  The advantage of this is that you can make one database call and get all the information about a post at once, so you need less application to database communication.  And it is also easier to understand when you think about this.  For example you can add a tag schema store in another object and it can have an arbitrary number of tags.</p>
 
 <h3>2. Reading nested Data out from mongodb</h3>
 
-<pre><code>Here I'm using an express app to read the data out and send it to a jade file for displaying.
-</code></pre>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Reading data from mongodb in nodejs using mongoose  - read.js </span></figcaption>
+<p>Here I'm using an express app to read the data out and send it to a jade file for displaying.
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Reading data from mongodb in nodejs using mongoose  - read.js </span></figcaption>
  <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -167,15 +163,12 @@
 </span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
 </span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
-<pre><code>There are no differences here reading from a mongodb doc that has nested data vs non nested data.
-</code></pre>
+<p>There are no differences here reading from a mongodb doc that has nested data vs non nested data.</p>
 
 <h3>3. Output the data in jade.</h3>
 
-<pre><code>There are two each loops that run through the nested data.  If there are multiple nested data on a page, like the main page of the blog, then you can loop through the blog articles and then have a sub loop for each of the comment sections.
-</code></pre>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Displaying nested data in jade  - blog.jade </span></figcaption>
+<p>There are two each loops that run through the nested data.  If there are multiple nested data on a page, like the main page of the blog, then you can loop through the blog articles and then have a sub loop for each of the comment sections.
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Displaying nested data in jade  - blog.jade </span></figcaption>
  <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
@@ -194,10 +187,8 @@
 
 <h3>4. Posting data to mongodb</h3>
 
-<pre><code>In order for the app to be useful there has to be some way for users to like and comment on articles.  Here is an example of an express route for commenting on an article.
-</code></pre>
-
-<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>comment on an article express route  - comment.js </span></figcaption>
+<p>In order for the app to be useful there has to be some way for users to like and comment on articles.  Here is an example of an express route for commenting on an article.
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>comment on an article express route  - comment.js </span></figcaption>
  <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
 <span class='line-number'>2</span>
 <span class='line-number'>3</span>
