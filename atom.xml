@@ -4,7 +4,7 @@
   <title><![CDATA[Abe Massry]]></title>
   <link href="http://abemassry.com/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2012-12-18T13:40:41-05:00</updated>
+  <updated>2013-07-29T16:53:08-04:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -12,6 +12,26 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[New app: wsend - the opposite of wget]]></title>
+    <link href="http://abemassry.com/blog/2013/07/29/new-app-wsend-the-opposite-of-wget/"/>
+    <updated>2013-07-29T16:44:00-04:00</updated>
+    <id>http://abemassry.com/blog/2013/07/29/new-app-wsend-the-opposite-of-wget</id>
+    <content type="html"><![CDATA[<p>A quick post to let everyone know I just launched a new website with a cli interface.  I was looking for a quicker way to send files from the command line so I created wsend.  I based it off of wget because wget is very quick and easy to use if you want to download a file from the web to your current directory.  You can check it out at:</p>
+
+<p><a href="https://wsend.net">wsend.net</a></p>
+]]></content>
+  </entry>
+  
+  <entry>
+    <title type="html"><![CDATA[Working with multiple cores in Python]]></title>
+    <link href="http://abemassry.com/blog/2013/07/15/working-with-multiple-cores-in-python/"/>
+    <updated>2013-07-15T02:29:00-04:00</updated>
+    <id>http://abemassry.com/blog/2013/07/15/working-with-multiple-cores-in-python</id>
+    <content type="html"><![CDATA[<p>I just created this new project called Crazip(</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Creating and Displaying subdocs and Nested Data with mongodb and nodejs]]></title>
