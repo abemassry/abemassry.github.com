@@ -4,7 +4,7 @@
   <title><![CDATA[Category: threading | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/threading/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2013-07-29T16:53:08-04:00</updated>
+  <updated>2013-07-29T17:06:49-04:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -18,7 +18,13 @@
     <link href="http://abemassry.com/blog/2013/07/15/working-with-multiple-cores-in-python/"/>
     <updated>2013-07-15T02:29:00-04:00</updated>
     <id>http://abemassry.com/blog/2013/07/15/working-with-multiple-cores-in-python</id>
-    <content type="html"><![CDATA[<p>I just created this new project called Crazip(</p>
+    <content type="html"><![CDATA[<h2>Challenges</h2>
+
+<p>I just created this new project called Crazip because I wanted to try to write a program using multiple cores in python.  Normally I would use threads for something like this because it would cut down on the need for interprocess communication. It turns out that using threads in python doesn't allow the program to run on multiple cores with the default installation.  So there is the multiprocessing library to get the program to run on multiple cores simultaneously.  After this the program showed up on multiple cores when run and then the shared memory was tweaked to get the separate processes communicating.</p>
+
+<h2>The Idea</h2>
+
+<p>The idea is to take the hash of a file and then try to recreate the file with a known length of random ones and zeros.  This works very well for very small file sizes but the brute force method works terribly for large sized files.  The limit seems to be the number of random tries needed to achieve the reverse hash.  If one had access to a supercomputer with thousands of cores this might make sense.  Then again the question remains as to why you would need to compress something so heavily if you had access to that kind of hardware.</p>
 ]]></content>
   </entry>
   
