@@ -4,7 +4,7 @@
   <title><![CDATA[Abe Massry]]></title>
   <link href="http://abemassry.com/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2013-07-29T17:06:49-04:00</updated>
+  <updated>2013-09-09T15:30:28-04:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -12,6 +12,23 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Wsend Twitter Card]]></title>
+    <link href="http://abemassry.com/blog/2013/09/09/wsend-twitter-card/"/>
+    <updated>2013-09-09T14:59:00-04:00</updated>
+    <id>http://abemassry.com/blog/2013/09/09/wsend-twitter-card</id>
+    <content type="html"><![CDATA[<p>If you upload an image using wsend and want to share it on twitter it doesn&#8217;t show up as a twitter card by default.  I wanted to have it render in the stream.</p>
+
+<p>So I started the repo <a href="https://github.com/abemassry/wsend-twitter-card">wsend-twitter-card</a>. The script will take the image provided and create a link that will allow twitter to render a twitter card.</p>
+
+<p>Here is the final product:</p>
+
+<p><img src="https://wsend.net/4f63cc74b484923a64b72f1cf9b5b3b4/wtc.png"></p>
+
+<p>This is just one example of an app that can be built on top of wsend.  In the future I hope to create more apps built on top and use the Unix philosophy of each program doing one thing and doing it well.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[New app: wsend - the opposite of wget]]></title>
