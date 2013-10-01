@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: ntfs | Abe Massry]]></title>
+  <link href="http://abemassry.com/blog/categories/ntfs/atom.xml" rel="self"/>
+  <link href="http://abemassry.com/"/>
+  <updated>2013-10-01T15:27:29-04:00</updated>
+  <id>http://abemassry.com/</id>
+  <author>
+    <name><![CDATA[Abe Massry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[NTFS on OSX 10.7]]></title>
+    <link href="http://abemassry.com/blog/2013/10/01/ntfs-on-osx-10-dot-7/"/>
+    <updated>2013-10-01T15:12:00-04:00</updated>
+    <id>http://abemassry.com/blog/2013/10/01/ntfs-on-osx-10-dot-7</id>
+    <content type="html"><![CDATA[<p>This is mostly a reminder to myself on how to get NTFS reading and writing on a mac working properly.  You might have some use for it if you run into this problem as I have today.  I'll have to make another post once I update to 10.8 or 10.9.</p>
+
+<h2>1. Download NTFS 3G</h2>
+
+<p>First download and install this file: <a href="https://wsend.net/7cb339ebc615e0b99955b82ca63d3fb9/ntfs-3g-2010.10.2-macosx.dmg">ntfs_3g</a>
+Use the first option about it being the safest</p>
+
+<h2>2. Download OSXFuse</h2>
+
+<p>Next download and install this file: <a href="https://wsend.net/d55ad32711128d662e11be012b97508d/osxfuse-2.6.1.dmg">OSXFuse</a>
+And choose the MacFuse compatibility layer</p>
+
+<h2>3. Download the fuse wait patch</h2>
+
+<p>Next download and install this file: <a href="https://wsend.net/450ada007eff051aff1ad4f7a5d39767/fuse_wait-1.1.pkg">fuse_wait</a>
+I don't think there should be any special options for this one but I might have forgotten about something, so let me know.</p>
+
+<p>I haven't included screenshots so there is some updating that can be done.  If you run into any problems discuss them in the comments, and I'll try to take screenshots on the next machine I run across.</p>
+]]></content>
+  </entry>
+  
+</feed>
