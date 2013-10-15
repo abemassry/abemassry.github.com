@@ -4,7 +4,7 @@
   <title><![CDATA[Abe Massry]]></title>
   <link href="http://abemassry.com/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2013-10-02T12:50:39-04:00</updated>
+  <updated>2013-10-15T13:31:52-04:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -12,6 +12,52 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[5 Things I use for Productivity]]></title>
+    <link href="http://abemassry.com/blog/2013/10/15/5-things-i-use-for-productivity/"/>
+    <updated>2013-10-15T13:29:00-04:00</updated>
+    <id>http://abemassry.com/blog/2013/10/15/5-things-i-use-for-productivity</id>
+    <content type="html"><![CDATA[<p>Before I consciously thought about productivity I had an organically grown method and wide range of tools I used that wasn’t necessarily the most productive way of being productive.  Then I stepped back and looked at what worked the best and what didn’t.</p>
+
+<h2>First the history:</h2>
+
+<p>In highschool and college we had planners issued to us once a year.  Everything I did went into them, and I stayed productive and was on top of things because I checked the planner relentlessly, I always carried it with me because I carried a backpack everywhere I went.</p>
+
+<p>When I started working I bought a pocket sized planner but it was too small and it could fit easily in a jacket pocket but not carry it with me.</p>
+
+<p>Then came the smart phones, first it was email and calendaring, this was good but not the best. It was difficult to check and the phone didn’t have everything plainly listed, you had to search for what you had to do that day.  One positive was, now there were automated reminders and alarms that went off when a meeting was coming up.</p>
+
+<p>These tools were difficult to use but you could use them properly to get by.</p>
+
+<h2>What I use now:</h2>
+
+<p>I’ll list these in reverse order from now as I have just started using the newer tools and they are more at the forefront of my mind because they haven’t made it into my unthinking routine.</p>
+
+<ol>
+<li><p><a href="http://www.bulletjournal.com/">Bullet Journal</a></p>
+
+<p> I saw this just recently and I realized I was the most productive when I had one true source, in a handwritten book, that I referred to.  I jumped in headfirst and said “This is what I’ll be using from now on”.  It make sense to me and the other parts of the planner that were printed on the page, I draw them in.  The only problem in my usage of this is I’m not always able to carry something with me, as it needs to fit in my pocket which is why I also use:</p></li>
+<li><p><a href="https://evernote.com/">Evernote</a></p>
+
+<p> I use it as a backup to bullet journal when I want to take a note to write it down later and I only have my phone with me, or I use it to take a picture of something that I want to remember.  It kinda serves the role of my own personal external memory. I used to use a point and shoot digital camera for this.</p></li>
+<li><p><a href="https://lift.do/">Lift</a></p>
+
+<p> I usually check this around 2 times a day.  As soon as I get up, and before I go to bed.  This reminds me of the things I have to do on a daily basis, but since I should be doing them every day, I wouldn’t write them down. I also use this to visually show progress on a long running goal.</p></li>
+<li><p><a href="http://tempo.ai/">Tempo</a></p>
+
+<p> I switched to tempo for my calendaring app and I really like the experience.  I can enter something on google calendar (which I use for desktop calendaring) and it will automatically show up and pull in relevant data to each meeting or appointment.</p></li>
+<li><p>My Brain</p>
+
+<p> All the others are some form of Tech (analog tech in the case of the bullet journal).  But in an ideal world I’d have a photographic memory, I would remember all the important things as well as the semi important things, and an internal chronometer that would alert me when the things in my calendar were coming up.</p>
+
+<p> The reason why I use items 1-4 and why I think they are useful is that it frees my mind to focus on one task at a time and I can complete the task efficiently when I’m able to focus.  I actually forget an item temporarily when I write it down or put it in a calendar and either a machine reminds me I have something to do or I have a break in work and I wonder what it is I have to do and it’s written down.</p></li>
+</ol>
+
+
+<p>I’m Abe and I make a tool for being more productive on the command line and on the web for sending files.  Check out <a href="https://wsend.net">Wsend</a></p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[NTFS on OSX 10.7]]></title>
