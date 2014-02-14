@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: command line | Abe Massry]]></title>
+  <link href="http://abemassry.com/blog/categories/command-line/atom.xml" rel="self"/>
+  <link href="http://abemassry.com/"/>
+  <updated>2014-02-14T13:53:54-05:00</updated>
+  <id>http://abemassry.com/</id>
+  <author>
+    <name><![CDATA[Abe Massry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Building wsend]]></title>
+    <link href="http://abemassry.com/blog/2014/02/14/building-wsend/"/>
+    <updated>2014-02-14T12:11:00-05:00</updated>
+    <id>http://abemassry.com/blog/2014/02/14/building-wsend</id>
+    <content type="html"><![CDATA[<p>I wanted to write a post about the technical aspect of building wsend, after <a href="https://twitter.com/jonmarkgo">Jon Gottfried</a> suggested I write one. Thanks Jon</p>
+
+<h2>Motivation</h2>
+
+<p>As any technical project I undertake, I like to explain the motivation behind the project.  What is the end state of the project? What is the final product supposed to look like? Most of the time I have an answer to these questions before I start.  With wsend the answer was clear, a command line program that gave you a URL for a file up to 10GB in size. It should be simple to install and quick to use and not require any type of complicated setup.  There are other command line tools for sending files but they either require me to put in additional information about where I am sending the file like scp, or I have to set this sort of thing up before I start.  So I had this idea in mind to scratch my own itch and hopefully you find it useful too. (More motivation also came from: <a href="http://xkcd.com/949/">http://xkcd.com/949/</a>).</p>
+
+<h2>Server Side</h2>
+
+<p>Any time I'm working on a service that uploads a file, I like to start out on the back end.  The reason for this is because we have straightforward tools for sending files like HTML upload forms and curl; but many tools for accepting an upload on the server.</p>
+
+<p>My first attempt for a different website was to use PHP.</p>
+
+<ul>
+<li>I had found that PHP ran into a 2GB file upload limit, even when running on a 64bit machine.</li>
+<li>So my next option was Perl and nginx.</li>
+<li>Perl could handle a large file and so could nginx, but in order to link the two together I needed FastCGI.</li>
+<li>I ran into a similar 2GB file upload limit with FastCGI.</li>
+<li>So the next option was node.js</li>
+</ul>
+
+
+<p>I was able to upload a file up to 10GB and it worked using node.  This worked out really well because the application is the server, there's no layer in between.</p>
+
+<p>The rest of the backend is a standard <a href="http://expressjs.com/">express</a> app that exposes a simple <a href="https://github.com/abemassry/wsend#api">API</a> using POST for all communication.  And all this can be set up using curl on the client side for testing.</p>
+
+<h2>Client Side</h2>
+
+<p>Now that we have a server setup with an API that accepts uploads and gives you a URL for a file we can do a lot of fun things on the client.  So the first thing to do was write a command line script to handle all of these API calls using curl.</p>
+
+<p>Which language to chose for a command line script?</p>
+
+<ul>
+<li>Perl is widely deployed on most Unix / Linux / Mac systems.</li>
+<li>In order to install a progress bar CPAN was needed.</li>
+<li>CPAN has to be set up on the client's machine</li>
+<li>Bash is the default shell on many Unix installations</li>
+<li>Bash is a scripting language.</li>
+<li>cURL has its own built in progress bar.</li>
+<li>Use bash and curl.</li>
+</ul>
+
+
+<p>So I started working on the <a href="https://github.com/abemassry/wsend">CLI</a>.  After all the setup that the script does automatically it comes down to one command.
+<code>
+wsend file.txt
+</code></p>
+
+<p>And it returns you a URL.  Inside the script this is the main command that actually sends your file.</p>
+
+<p><code>
+curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli
+</code></p>
+
+<p>Where <code>$host</code> is <code>https://wsend.net</code>.  The return of that command is your URL. Its really simple, but sometimes simple works out the best.</p>
+
+<h2>Other Client Possibilities</h2>
+
+<p>Now that we have an API and a command line utility we can do some interesting stuff:</p>
+
+<ul>
+<li>We can write a script to auto upload an image and get a link that shows up as a <a href="http://abemassry.com/blog/2013/09/09/wsend-twitter-card/">Twitter Card</a>.</li>
+<li>We can write a program to provide <a href="https://github.com/abemassry/wsend-gpg">end to end encryption</a></li>
+<li>We can write a new <a href="https://github.com/abemassry/node-wsend">client</a> in nodejs as well.</li>
+<li>We can make a <a href="https://wsend.net/upload">Drag and Drop GUI</a> website interface.</li>
+<li>We can upload an html file and have it render in the browser, even a <a href="https://wsend.net/014c82d83470b9c45efc6fdaddb00109/">slideshow</a> using <a href="http://lab.hakim.se/reveal-js/#/">reveal.js</a>.</li>
+<li>Even a <a href="https://github.com/abemassry/wsend-static">static site generator</a> (still under development [in pre-alpha] though)</li>
+</ul>
+
+
+<p>Future projects like these could include:</p>
+
+<ul>
+<li>Writing clients in Ruby, Python, Perl, C ...</li>
+<li>Distributing with rubygems, pip, CPAN, apt, yum, pacman ...</li>
+<li>Or anything else you can thing of and do.</li>
+</ul>
+
+
+<h2>Outcome</h2>
+
+<p>It's been a really good learning experience and it has been my first opportunity to work with others in open source on my projects, usually I'm a contributor to someone else's project but when people are submitting me code to review and incorporate into my open source project I really get a feeling that the community is working together as a whole.  Its really amazing that people believe in my ideas and like them enough to contribute and I'm really grateful for the help.  It was really exciting to get my first pull request and I hope to work with others on this in the future.</p>
+
+<p>Thanks Jon, for encouraging me to write this post.</p>
+
+<p>Check out the site at <a href="https://wsend.net">https://wsend.net</a></p>
+
+<p>Follow me on twitter <a href="https://twitter.com/abemassry">@abemassry</a></p>
+]]></content>
+  </entry>
+  
+</feed>

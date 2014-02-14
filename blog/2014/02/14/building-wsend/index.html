@@ -1,0 +1,393 @@
+
+<!DOCTYPE html>
+<!--[if IEMobile 7 ]><html class="no-js iem7"><![endif]-->
+<!--[if lt IE 9]><html class="no-js lte-ie8"><![endif]-->
+<!--[if (gt IE 8)|(gt IEMobile 7)|!(IEMobile)|!(IE)]><!--><html class="no-js" lang="en"><!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <title>Building wsend - Abe Massry</title>
+  <meta name="author" content="Abe Massry">
+
+  
+  <meta name="description" content="I wanted to write a post about the technical aspect of building wsend, after Jon Gottfried suggested I write one. Thanks Jon Motivation As any &hellip;">
+  
+
+  <!-- http://t.co/dKP3o1e -->
+  <meta name="HandheldFriendly" content="True">
+  <meta name="MobileOptimized" content="320">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+
+  
+  <link rel="canonical" href="http://abemassry.com/blog/2014/02/14/building-wsend/">
+  <link href="/favicon.png" rel="icon">
+  <link href="/stylesheets/screen.css" media="screen, projection" rel="stylesheet" type="text/css">
+  <script src="/javascripts/modernizr-2.0.js"></script>
+  <script src="/javascripts/ender.js"></script>
+  <script src="/javascripts/octopress.js" type="text/javascript"></script>
+  <link href="/atom.xml" rel="alternate" title="Abe Massry" type="application/atom+xml">
+  <!--Fonts from Google"s Web font directory at http://google.com/webfonts -->
+<link href="http://fonts.googleapis.com/css?family=PT+Serif:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+<link href="http://fonts.googleapis.com/css?family=PT+Sans:regular,italic,bold,bolditalic" rel="stylesheet" type="text/css">
+
+  
+  <script type="text/javascript">
+    var _gaq = _gaq || [];
+    _gaq.push(['_setAccount', 'UA-35802076-1']);
+    _gaq.push(['_trackPageview']);
+
+    (function() {
+      var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+      ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+    })();
+  </script>
+
+
+</head>
+
+<body   >
+  <header role="banner"><hgroup>
+  <h1><a href="/">Abe Massry</a></h1>
+  
+    <h2>Web Development and Building Businesses</h2>
+  
+</hgroup>
+
+</header>
+  <nav role="navigation"><ul class="subscription" data-subscription="rss">
+  <li><a href="/atom.xml" rel="subscribe-rss" title="subscribe via RSS">RSS</a></li>
+  
+</ul>
+  
+<form action="http://google.com/search" method="get">
+  <fieldset role="search">
+    <input type="hidden" name="q" value="site:abemassry.com" />
+    <input class="search" type="text" name="q" results="0" placeholder="Search"/>
+  </fieldset>
+</form>
+  
+<ul class="main-navigation">
+  <li><a href="/">Blog</a></li>
+  <li><a href="/blog/archives">Archives</a></li>
+</ul>
+
+</nav>
+  <div id="main">
+    <div id="content">
+      <div>
+<article class="hentry" role="article">
+  
+  <header>
+    
+      <h1 class="entry-title">Building Wsend</h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-14T12:11:00-05:00" pubdate data-updated="true">Feb 14<span>th</span>, 2014</time>
+        
+      </p>
+    
+  </header>
+
+
+<div class="entry-content"><p>I wanted to write a post about the technical aspect of building wsend, after <a href="https://twitter.com/jonmarkgo">Jon Gottfried</a> suggested I write one. Thanks Jon</p>
+
+<h2>Motivation</h2>
+
+<p>As any technical project I undertake, I like to explain the motivation behind the project.  What is the end state of the project? What is the final product supposed to look like? Most of the time I have an answer to these questions before I start.  With wsend the answer was clear, a command line program that gave you a URL for a file up to 10GB in size. It should be simple to install and quick to use and not require any type of complicated setup.  There are other command line tools for sending files but they either require me to put in additional information about where I am sending the file like scp, or I have to set this sort of thing up before I start.  So I had this idea in mind to scratch my own itch and hopefully you find it useful too. (More motivation also came from: <a href="http://xkcd.com/949/">http://xkcd.com/949/</a>).</p>
+
+<h2>Server Side</h2>
+
+<p>Any time I&#8217;m working on a service that uploads a file, I like to start out on the back end.  The reason for this is because we have straightforward tools for sending files like HTML upload forms and curl; but many tools for accepting an upload on the server.</p>
+
+<p>My first attempt for a different website was to use PHP.</p>
+
+<ul>
+<li>I had found that PHP ran into a 2GB file upload limit, even when running on a 64bit machine.</li>
+<li>So my next option was Perl and nginx.</li>
+<li>Perl could handle a large file and so could nginx, but in order to link the two together I needed FastCGI.</li>
+<li>I ran into a similar 2GB file upload limit with FastCGI.</li>
+<li>So the next option was node.js</li>
+</ul>
+
+
+<p>I was able to upload a file up to 10GB and it worked using node.  This worked out really well because the application is the server, there&#8217;s no layer in between.</p>
+
+<p>The rest of the backend is a standard <a href="http://expressjs.com/">express</a> app that exposes a simple <a href="https://github.com/abemassry/wsend#api">API</a> using POST for all communication.  And all this can be set up using curl on the client side for testing.</p>
+
+<h2>Client Side</h2>
+
+<p>Now that we have a server setup with an API that accepts uploads and gives you a URL for a file we can do a lot of fun things on the client.  So the first thing to do was write a command line script to handle all of these API calls using curl.</p>
+
+<p>Which language to chose for a command line script?</p>
+
+<ul>
+<li>Perl is widely deployed on most Unix / Linux / Mac systems.</li>
+<li>In order to install a progress bar CPAN was needed.</li>
+<li>CPAN has to be set up on the client&#8217;s machine</li>
+<li>Bash is the default shell on many Unix installations</li>
+<li>Bash is a scripting language.</li>
+<li>cURL has its own built in progress bar.</li>
+<li>Use bash and curl.</li>
+</ul>
+
+
+<p>So I started working on the <a href="https://github.com/abemassry/wsend">CLI</a>.  After all the setup that the script does automatically it comes down to one command.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>wsend file.txt</span></code></pre></td></tr></table></div></figure>
+
+
+<p>And it returns you a URL.  Inside the script this is the main command that actually sends your file.</p>
+
+<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class=''><span class='line'>curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Where <code>$host</code> is <code>https://wsend.net</code>.  The return of that command is your URL. Its really simple, but sometimes simple works out the best.</p>
+
+<h2>Other Client Possibilities</h2>
+
+<p>Now that we have an API and a command line utility we can do some interesting stuff:</p>
+
+<ul>
+<li>We can write a script to auto upload an image and get a link that shows up as a <a href="http://abemassry.com/blog/2013/09/09/wsend-twitter-card/">Twitter Card</a>.</li>
+<li>We can write a program to provide <a href="https://github.com/abemassry/wsend-gpg">end to end encryption</a></li>
+<li>We can write a new <a href="https://github.com/abemassry/node-wsend">client</a> in nodejs as well.</li>
+<li>We can make a <a href="https://wsend.net/upload">Drag and Drop GUI</a> website interface.</li>
+<li>We can upload an html file and have it render in the browser, even a <a href="https://wsend.net/014c82d83470b9c45efc6fdaddb00109/">slideshow</a> using <a href="http://lab.hakim.se/reveal-js/#/">reveal.js</a>.</li>
+<li>Even a <a href="https://github.com/abemassry/wsend-static">static site generator</a> (still under development [in pre-alpha] though)</li>
+</ul>
+
+
+<p>Future projects like these could include:</p>
+
+<ul>
+<li>Writing clients in Ruby, Python, Perl, C &#8230;</li>
+<li>Distributing with rubygems, pip, CPAN, apt, yum, pacman &#8230;</li>
+<li>Or anything else you can thing of and do.</li>
+</ul>
+
+
+<h2>Outcome</h2>
+
+<p>It&#8217;s been a really good learning experience and it has been my first opportunity to work with others in open source on my projects, usually I&#8217;m a contributor to someone else&#8217;s project but when people are submitting me code to review and incorporate into my open source project I really get a feeling that the community is working together as a whole.  Its really amazing that people believe in my ideas and like them enough to contribute and I&#8217;m really grateful for the help.  It was really exciting to get my first pull request and I hope to work with others on this in the future.</p>
+
+<p>Thanks Jon, for encouraging me to write this post.</p>
+
+<p>Check out the site at <a href="https://wsend.net">https://wsend.net</a></p>
+
+<p>Follow me on twitter <a href="https://twitter.com/abemassry">@abemassry</a></p>
+</div>
+
+
+  <footer>
+    <p class="meta">
+      
+  
+
+<span class="byline author vcard">Posted by <span class="fn">Abe Massry</span></span>
+
+      
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2014-02-14T12:11:00-05:00" pubdate data-updated="true">Feb 14<span>th</span>, 2014</time>
+      
+
+<span class="categories">
+  
+    <a class='category' href='/blog/categories/command-line/'>command line</a>, <a class='category' href='/blog/categories/javascript/'>javascript</a>, <a class='category' href='/blog/categories/nodejs/'>nodejs</a>, <a class='category' href='/blog/categories/project/'>project</a>, <a class='category' href='/blog/categories/uploads/'>uploads</a>, <a class='category' href='/blog/categories/wsend/'>wsend</a>
+  
+</span>
+
+
+    </p>
+    
+      <div class="sharing">
+  
+  <a href="http://twitter.com/share" class="twitter-share-button" data-url="http://abemassry.com/blog/2014/02/14/building-wsend/" data-via="abemassry" data-counturl="http://abemassry.com/blog/2014/02/14/building-wsend/" >Tweet</a>
+  
+  
+  <div class="g-plusone" data-size="medium"></div>
+  
+  
+</div>
+
+    
+    <p class="meta">
+      
+        <a class="basic-alignment left" href="/blog/2013/10/15/5-things-i-use-for-productivity/" title="Previous Post: 5 Things I use for Productivity">&laquo; 5 Things I use for Productivity</a>
+      
+      
+    </p>
+  </footer>
+</article>
+
+  <section>
+    <h1>Comments</h1>
+    <div id="disqus_thread" aria-live="polite"><noscript>Please enable JavaScript to view the <a href="http://disqus.com/?ref_noscript">comments powered by Disqus.</a></noscript>
+</div>
+  </section>
+
+</div>
+
+<aside class="sidebar">
+  
+    <section>
+  <h1>Recent Posts</h1>
+  <ul id="recent_posts">
+    
+      <li class="post">
+        <a href="/blog/2014/02/14/building-wsend/">Building wsend</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/15/5-things-i-use-for-productivity/">5 Things I use for Productivity</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/10/01/ntfs-on-osx-10-dot-7/">NTFS on OSX 10.7</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/09/09/wsend-twitter-card/">Wsend Twitter Card</a>
+      </li>
+    
+      <li class="post">
+        <a href="/blog/2013/07/29/new-app-wsend-the-opposite-of-wget/">New app: wsend - the opposite of wget</a>
+      </li>
+    
+  </ul>
+</section>
+
+<section>
+  <h1>GitHub Repos</h1>
+  <ul id="gh_repos">
+    <li class="loading">Status updating...</li>
+  </ul>
+  
+  <a href="https://github.com/abemassry">@abemassry</a> on GitHub
+  
+  <script type="text/javascript">
+    $.domReady(function(){
+        if (!window.jXHR){
+            var jxhr = document.createElement('script');
+            jxhr.type = 'text/javascript';
+            jxhr.src = '/javascripts/libs/jXHR.js';
+            var s = document.getElementsByTagName('script')[0];
+            s.parentNode.insertBefore(jxhr, s);
+        }
+
+        github.showRepos({
+            user: 'abemassry',
+            count: 3,
+            skip_forks: false,
+            target: '#gh_repos'
+        });
+    });
+  </script>
+  <script src="/javascripts/github.js" type="text/javascript"> </script>
+</section>
+
+
+<section>
+  <h1>Latest Tweets</h1>
+  <ul id="tweets">
+    <li class="loading">Status updating...</li>
+  </ul>
+  <script type="text/javascript">
+    $.domReady(function(){
+      getTwitterFeed("abemassry", 4, false);
+    });
+  </script>
+  <script src="/javascripts/twitter.js" type="text/javascript"> </script>
+  
+    <a href="http://twitter.com/abemassry" class="twitter-follow-button" data-show-count="false">Follow @abemassry</a>
+  
+</section>
+
+
+
+
+
+  
+</aside>
+
+
+    </div>
+  </div>
+  <footer role="contentinfo"><p>
+  Copyright &copy; 2014 - Abe Massry -
+  <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
+</p>
+
+</footer>
+  
+
+<script type="text/javascript">
+      var disqus_shortname = 'abemassry';
+      
+        
+        // var disqus_developer = 1;
+        var disqus_identifier = 'http://abemassry.com/blog/2014/02/14/building-wsend/';
+        var disqus_url = 'http://abemassry.com/blog/2014/02/14/building-wsend/';
+        var disqus_script = 'embed.js';
+      
+    (function () {
+      var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+      dsq.src = 'http://' + disqus_shortname + '.disqus.com/' + disqus_script;
+      (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    }());
+</script>
+
+
+
+
+
+  <script type="text/javascript">
+    (function() {
+      var script = document.createElement('script'); script.type = 'text/javascript'; script.async = true;
+      script.src = 'https://apis.google.com/js/plusone.js';
+      var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(script, s);
+    })();
+  </script>
+
+
+
+  <script type="text/javascript">
+    (function(){
+      var twitterWidgets = document.createElement('script');
+      twitterWidgets.type = 'text/javascript';
+      twitterWidgets.async = true;
+      twitterWidgets.src = 'http://platform.twitter.com/widgets.js';
+      document.getElementsByTagName('head')[0].appendChild(twitterWidgets);
+    })();
+  </script>
+
+
+
+
+
+</body>
+</html>
