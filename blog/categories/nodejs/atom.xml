@@ -4,7 +4,7 @@
   <title><![CDATA[Category: nodejs | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/nodejs/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2014-02-25T13:49:59-05:00</updated>
+  <updated>2014-02-25T15:24:16-05:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -14,11 +14,11 @@
 
   
   <entry>
-    <title type="html"><![CDATA[Building wsend]]></title>
+    <title type="html"><![CDATA[Building wsend - A Command Line Tool to Easily Send Files]]></title>
     <link href="http://abemassry.com/blog/2014/02/14/building-wsend/"/>
     <updated>2014-02-14T12:11:00-05:00</updated>
     <id>http://abemassry.com/blog/2014/02/14/building-wsend</id>
-    <content type="html"><![CDATA[<p>I wanted to write a post about the technical aspect of building wsend, after <a href="https://twitter.com/jonmarkgo">Jon Gottfried</a> suggested I write one. Thanks Jon</p>
+    <content type="html"><![CDATA[<p>Building wsend - A Command Line Tool to Easily Send Files. I wanted to write a post about the technical aspect of building wsend, after <a href="https://twitter.com/jonmarkgo">Jon Gottfried</a> suggested I write one. Thanks Jon</p>
 
 <h2>Motivation</h2>
 
