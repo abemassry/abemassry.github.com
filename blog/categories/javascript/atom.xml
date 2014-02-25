@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javascript | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2014-02-14T13:53:54-05:00</updated>
+  <updated>2014-02-25T13:41:45-05:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -23,6 +23,8 @@
 <h2>Motivation</h2>
 
 <p>As any technical project I undertake, I like to explain the motivation behind the project.  What is the end state of the project? What is the final product supposed to look like? Most of the time I have an answer to these questions before I start.  With wsend the answer was clear, a command line program that gave you a URL for a file up to 10GB in size. It should be simple to install and quick to use and not require any type of complicated setup.  There are other command line tools for sending files but they either require me to put in additional information about where I am sending the file like scp, or I have to set this sort of thing up before I start.  So I had this idea in mind to scratch my own itch and hopefully you find it useful too. (More motivation also came from: <a href="http://xkcd.com/949/">http://xkcd.com/949/</a>).</p>
+
+<p><a href="http://xkcd.com/949/"><img src="https://wsend.net/85a497041dfd921da6d5fca49ccc3caf/file_transfer.png"></a></p>
 
 <h2>Server Side</h2>
 
@@ -43,6 +45,61 @@
 
 <p>The rest of the backend is a standard <a href="http://expressjs.com/">express</a> app that exposes a simple <a href="https://github.com/abemassry/wsend#api">API</a> using POST for all communication.  And all this can be set up using curl on the client side for testing.</p>
 
+<p>And here is an example of the express route used to handle the upload.</p>
+
+<p>``` javascript Express Upload Example
+// upload file from command line
+app.post('/upload_cli', function(req, res) {
+  var userID = req.param('uid');
+  var now = new Date();
+  if (userID) {</p>
+
+<pre><code>models.users.findOne({user_id: userID}, function (err, doc) {
+  if (err) throw err;
+  if (doc.user_id) {
+    var filesize = req.files.filehandle.size;
+    var filesizeInt = parseInt(filesize);
+    var filename=req.files.filehandle.name;
+
+    // newpath needs a unique folder,
+    var uniqueDir = getUniqueDir();
+    var newDir = __dirname + "/uploads"+'/'+ uniqueDir + '/';
+
+    fs.mkdir(newDir, 0744, function (err) {
+      if(err) { throw err; }
+      var newPath = __dirname + "/uploads"+'/'+ uniqueDir + '/' +filename;
+
+      //add a check to make sure newpath is writable
+      fs.rename(req.files.filehandle.path, newPath, function(err) {
+        if (err) throw err;
+        var permalink = "https://wsend.net/"+ uniqueDir + '/' + filename;
+        doc.files.push({timestamp: now, 
+                        filename: filename, 
+                        type: '', 
+                        size: filesizeInt, 
+                        dir: newPath, 
+                        permalink: permalink, 
+                        permissions: ''
+                      });
+        // save file location to db
+        doc.save(function(err) {
+          if (err) throw err;
+        });
+        // send permalink as response
+        res.send(permalink);
+      });
+    });
+  }
+});
+</code></pre>
+
+<p>  }
+});</p>
+
+<p>```</p>
+
+<p>Express makes it really easy to handle the file upload. The properties of the file are stored in <code>req.files.filehandle</code> and you save the file to the file system with <code>fs.rename</code> which comes from the fs module of nodejs and you get it with a <code>var fs = require('fs');</code>.</p>
+
 <h2>Client Side</h2>
 
 <p>Now that we have a server setup with an API that accepts uploads and gives you a URL for a file we can do a lot of fun things on the client.  So the first thing to do was write a command line script to handle all of these API calls using curl.</p>
@@ -61,13 +118,71 @@
 
 
 <p>So I started working on the <a href="https://github.com/abemassry/wsend">CLI</a>.  After all the setup that the script does automatically it comes down to one command.
-<code>
+<code>bash wsend command
 wsend file.txt
 </code></p>
 
-<p>And it returns you a URL.  Inside the script this is the main command that actually sends your file.</p>
+<p>And it returns you a URL.</p>
 
-<p><code>
+<p>Here is the function inside the script that sets everything up and actually sends the file.</p>
+
+<p>``` bash wsend upload function</p>
+
+<p>sendFile() {
+  if [[ -e "$fileOrDirToSend" ]]; then</p>
+
+<pre><code>if [ -d "$fileOrDirToSend" ]; then
+  #we want to send a directory, so make a compressed archive
+  fileOrDirToSend=${fileOrDirToSend%/}
+  tar cfj "$fileOrDirToSend.tar.bz2" "$fileOrDirToSend"
+  fileToSend="$fileOrDirToSend.tar.bz2"
+elif [ -e "$fileOrDirToSend" ]; then
+  fileToSend=$fileOrDirToSend
+fi
+
+if [ "$clientOS" == "Darwin" ]; then
+  fileToSendSize=$(stat -f %z "$fileToSend")
+else
+  fileToSendSize=$(stat -c%s "$fileToSend")
+fi
+
+getAccountSpace
+if [ "$accountSizeAvailable" == "not enough space in your account for this transfer" ]; then
+  notEnoughSpaceErr
+elif [ "$accountSizeAvailable" == "file is too big for your account size" ]; then
+  filesizeTooLarge
+else
+  if [[ $link ]]; then   
+    #link was provided, so update target link with file
+    curlReturn=$(curl -F "uid=$id" -F "link=$link" -F "filehandle=@$fileToSend" $host/update_cli)
+  else
+    #simply create a new one
+    curlReturn=$(curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli)
+    echo "$curlReturn|$(make_absolute "$fileOrDirToSend")" &gt;&gt; "$wsend_base/.list"
+  fi
+  echo $curlReturn
+fi
+
+if [ -d "$fileOrDirToSend" ]; then
+  #remove our temporary file
+  rm "$fileToSend"
+fi
+</code></pre>
+
+<p>  elif [ "$fileSendBool" == "true" ]; then</p>
+
+<pre><code>#want to send file, but source doesn't exist
+echoUsage="true"
+</code></pre>
+
+<p>  fi
+}</p>
+
+<p>```</p>
+
+<p>Inside the script this is the main command that actually sends your file.</p>
+
+<p><code>bash curl the file
 curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli
 </code></p>
 

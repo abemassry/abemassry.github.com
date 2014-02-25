@@ -111,6 +111,8 @@
 
 <p>As any technical project I undertake, I like to explain the motivation behind the project.  What is the end state of the project? What is the final product supposed to look like? Most of the time I have an answer to these questions before I start.  With wsend the answer was clear, a command line program that gave you a URL for a file up to 10GB in size. It should be simple to install and quick to use and not require any type of complicated setup.  There are other command line tools for sending files but they either require me to put in additional information about where I am sending the file like scp, or I have to set this sort of thing up before I start.  So I had this idea in mind to scratch my own itch and hopefully you find it useful too. (More motivation also came from: <a href="http://xkcd.com/949/">http://xkcd.com/949/</a>).</p>
 
+<p><a href="http://xkcd.com/949/"><img src="https://wsend.net/85a497041dfd921da6d5fca49ccc3caf/file_transfer.png"></a></p>
+
 <h2>Server Side</h2>
 
 <p>Any time I&#8217;m working on a service that uploads a file, I like to start out on the back end.  The reason for this is because we have straightforward tools for sending files like HTML upload forms and curl; but many tools for accepting an upload on the server.</p>
@@ -129,6 +131,101 @@
 <p>I was able to upload a file up to 10GB and it worked using node.  This worked out really well because the application is the server, there&#8217;s no layer in between.</p>
 
 <p>The rest of the backend is a standard <a href="http://expressjs.com/">express</a> app that exposes a simple <a href="https://github.com/abemassry/wsend#api">API</a> using POST for all communication.  And all this can be set up using curl on the client side for testing.</p>
+
+<p>And here is an example of the express route used to handle the upload.</p>
+
+<figure class='code'><figcaption><span>Express Upload Example</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="c1">// upload file from command line</span>
+</span><span class='line'><span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/upload_cli&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">userID</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;uid&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">userID</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">models</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">user_id</span><span class="o">:</span> <span class="nx">userID</span><span class="p">},</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">doc</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">doc</span><span class="p">.</span><span class="nx">user_id</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">filesize</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">filehandle</span><span class="p">.</span><span class="nx">size</span><span class="p">;</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">filesizeInt</span> <span class="o">=</span> <span class="nb">parseInt</span><span class="p">(</span><span class="nx">filesize</span><span class="p">);</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">filename</span><span class="o">=</span><span class="nx">req</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">filehandle</span><span class="p">.</span><span class="nx">name</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="c1">// newpath needs a unique folder,</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">uniqueDir</span> <span class="o">=</span> <span class="nx">getUniqueDir</span><span class="p">();</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">newDir</span> <span class="o">=</span> <span class="nx">__dirname</span> <span class="o">+</span> <span class="s2">&quot;/uploads&quot;</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span> <span class="nx">uniqueDir</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="nx">fs</span><span class="p">.</span><span class="nx">mkdir</span><span class="p">(</span><span class="nx">newDir</span><span class="p">,</span> <span class="mi">0744</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>          <span class="kd">var</span> <span class="nx">newPath</span> <span class="o">=</span> <span class="nx">__dirname</span> <span class="o">+</span> <span class="s2">&quot;/uploads&quot;</span><span class="o">+</span><span class="s1">&#39;/&#39;</span><span class="o">+</span> <span class="nx">uniqueDir</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span><span class="nx">filename</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>          <span class="c1">//add a check to make sure newpath is writable</span>
+</span><span class='line'>          <span class="nx">fs</span><span class="p">.</span><span class="nx">rename</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">filehandle</span><span class="p">.</span><span class="nx">path</span><span class="p">,</span> <span class="nx">newPath</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span>
+</span><span class='line'>            <span class="kd">var</span> <span class="nx">permalink</span> <span class="o">=</span> <span class="s2">&quot;https://wsend.net/&quot;</span><span class="o">+</span> <span class="nx">uniqueDir</span> <span class="o">+</span> <span class="s1">&#39;/&#39;</span> <span class="o">+</span> <span class="nx">filename</span><span class="p">;</span>
+</span><span class='line'>            <span class="nx">doc</span><span class="p">.</span><span class="nx">files</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="nx">timestamp</span><span class="o">:</span> <span class="nx">now</span><span class="p">,</span>
+</span><span class='line'>                            <span class="nx">filename</span><span class="o">:</span> <span class="nx">filename</span><span class="p">,</span>
+</span><span class='line'>                            <span class="nx">type</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>                            <span class="nx">size</span><span class="o">:</span> <span class="nx">filesizeInt</span><span class="p">,</span>
+</span><span class='line'>                            <span class="nx">dir</span><span class="o">:</span> <span class="nx">newPath</span><span class="p">,</span>
+</span><span class='line'>                            <span class="nx">permalink</span><span class="o">:</span> <span class="nx">permalink</span><span class="p">,</span>
+</span><span class='line'>                            <span class="nx">permissions</span><span class="o">:</span> <span class="s1">&#39;&#39;</span>
+</span><span class='line'>                          <span class="p">});</span>
+</span><span class='line'>            <span class="c1">// save file location to db</span>
+</span><span class='line'>            <span class="nx">doc</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>              <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span>
+</span><span class='line'>            <span class="p">});</span>
+</span><span class='line'>            <span class="c1">// send permalink as response</span>
+</span><span class='line'>            <span class="nx">res</span><span class="p">.</span><span class="nx">send</span><span class="p">(</span><span class="nx">permalink</span><span class="p">);</span>
+</span><span class='line'>          <span class="p">});</span>
+</span><span class='line'>        <span class="p">});</span>
+</span><span class='line'>      <span class="p">}</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Express makes it really easy to handle the file upload. The properties of the file are stored in <code>req.files.filehandle</code> and you save the file to the file system with <code>fs.rename</code> which comes from the fs module of nodejs and you get it with a <code>var fs = require('fs');</code>.</p>
 
 <h2>Client Side</h2>
 
@@ -149,14 +246,109 @@
 
 <p>So I started working on the <a href="https://github.com/abemassry/wsend">CLI</a>.  After all the setup that the script does automatically it comes down to one command.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>wsend file.txt</span></code></pre></td></tr></table></div></figure>
+<figure class='code'><figcaption><span>wsend command</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>wsend file.txt
+</span></code></pre></td></tr></table></div></figure>
 
 
-<p>And it returns you a URL.  Inside the script this is the main command that actually sends your file.</p>
+<p>And it returns you a URL.</p>
 
-<figure class='code'><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
-</pre></td><td class='code'><pre><code class=''><span class='line'>curl -F "uid=$id" -F "filehandle=@$fileToSend" $host/upload_cli</span></code></pre></td></tr></table></div></figure>
+<p>Here is the function inside the script that sets everything up and actually sends the file.</p>
+
+<figure class='code'><figcaption><span>wsend upload function</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>sendFile<span class="o">()</span> <span class="o">{</span>
+</span><span class='line'>  <span class="k">if</span> <span class="o">[[</span> -e <span class="s2">&quot;$fileOrDirToSend&quot;</span> <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> -d <span class="s2">&quot;$fileOrDirToSend&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>      <span class="c">#we want to send a directory, so make a compressed archive</span>
+</span><span class='line'>      <span class="nv">fileOrDirToSend</span><span class="o">=</span><span class="k">${</span><span class="nv">fileOrDirToSend</span><span class="p">%/</span><span class="k">}</span>
+</span><span class='line'>      tar cfj <span class="s2">&quot;$fileOrDirToSend.tar.bz2&quot;</span> <span class="s2">&quot;$fileOrDirToSend&quot;</span>
+</span><span class='line'>      <span class="nv">fileToSend</span><span class="o">=</span><span class="s2">&quot;$fileOrDirToSend.tar.bz2&quot;</span>
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[</span> -e <span class="s2">&quot;$fileOrDirToSend&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">fileToSend</span><span class="o">=</span><span class="nv">$fileOrDirToSend</span>
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> <span class="s2">&quot;$clientOS&quot;</span> <span class="o">==</span> <span class="s2">&quot;Darwin&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span><span class="nv">fileToSendSize</span><span class="o">=</span><span class="k">$(</span>stat -f %z <span class="s2">&quot;$fileToSend&quot;</span><span class="k">)</span>
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      </span><span class="nv">fileToSendSize</span><span class="o">=</span><span class="k">$(</span>stat -c%s <span class="s2">&quot;$fileToSend&quot;</span><span class="k">)</span>
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">    </span>getAccountSpace
+</span><span class='line'>    <span class="k">if</span> <span class="o">[</span> <span class="s2">&quot;$accountSizeAvailable&quot;</span> <span class="o">==</span> <span class="s2">&quot;not enough space in your account for this transfer&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span>notEnoughSpaceErr
+</span><span class='line'>    <span class="k">elif</span> <span class="o">[</span> <span class="s2">&quot;$accountSizeAvailable&quot;</span> <span class="o">==</span> <span class="s2">&quot;file is too big for your account size&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'><span class="k">      </span>filesizeTooLarge
+</span><span class='line'>    <span class="k">else</span>
+</span><span class='line'><span class="k">      if</span> <span class="o">[[</span> <span class="nv">$link</span> <span class="o">]]</span>; <span class="k">then</span>
+</span><span class='line'>        <span class="c">#link was provided, so update target link with file</span>
+</span><span class='line'>        <span class="nv">curlReturn</span><span class="o">=</span><span class="k">$(</span>curl -F <span class="s2">&quot;uid=$id&quot;</span> -F <span class="s2">&quot;link=$link&quot;</span> -F <span class="s2">&quot;filehandle=@$fileToSend&quot;</span> <span class="nv">$host</span>/update_cli<span class="k">)</span>
+</span><span class='line'>      <span class="k">else</span>
+</span><span class='line'>        <span class="c">#simply create a new one</span>
+</span><span class='line'>        <span class="nv">curlReturn</span><span class="o">=</span><span class="k">$(</span>curl -F <span class="s2">&quot;uid=$id&quot;</span> -F <span class="s2">&quot;filehandle=@$fileToSend&quot;</span> <span class="nv">$host</span>/upload_cli<span class="k">)</span>
+</span><span class='line'>        <span class="nb">echo</span> <span class="s2">&quot;$curlReturn|$(make_absolute &quot;</span><span class="nv">$fileOrDirToSend</span><span class="s2">&quot;)&quot;</span> &gt;&gt; <span class="s2">&quot;$wsend_base/.list&quot;</span>
+</span><span class='line'>      <span class="k">fi</span>
+</span><span class='line'><span class="k">      </span><span class="nb">echo</span> <span class="nv">$curlReturn</span>
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'>
+</span><span class='line'><span class="k">    if</span> <span class="o">[</span> -d <span class="s2">&quot;$fileOrDirToSend&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>      <span class="c">#remove our temporary file</span>
+</span><span class='line'>      rm <span class="s2">&quot;$fileToSend&quot;</span>
+</span><span class='line'>    <span class="k">fi</span>
+</span><span class='line'><span class="k">  elif</span> <span class="o">[</span> <span class="s2">&quot;$fileSendBool&quot;</span> <span class="o">==</span> <span class="s2">&quot;true&quot;</span> <span class="o">]</span>; <span class="k">then</span>
+</span><span class='line'>    <span class="c">#want to send file, but source doesn&#39;t exist</span>
+</span><span class='line'>    <span class="nv">echoUsage</span><span class="o">=</span><span class="s2">&quot;true&quot;</span>
+</span><span class='line'>  <span class="k">fi</span>
+</span><span class='line'><span class="o">}</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>Inside the script this is the main command that actually sends your file.</p>
+
+<figure class='code'><figcaption><span>curl the file</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+</pre></td><td class='code'><pre><code class='bash'><span class='line'>curl -F <span class="s2">&quot;uid=$id&quot;</span> -F <span class="s2">&quot;filehandle=@$fileToSend&quot;</span> <span class="nv">$host</span>/upload_cli
+</span></code></pre></td></tr></table></div></figure>
 
 
 <p>Where <code>$host</code> is <code>https://wsend.net</code>.  The return of that command is your URL. Its really simple, but sometimes simple works out the best.</p>
