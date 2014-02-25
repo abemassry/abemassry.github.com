@@ -4,7 +4,7 @@
   <title><![CDATA[Category: nodejs | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/nodejs/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2014-02-25T13:41:45-05:00</updated>
+  <updated>2014-02-25T13:49:59-05:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -99,6 +99,8 @@ app.post('/upload_cli', function(req, res) {
 <p>```</p>
 
 <p>Express makes it really easy to handle the file upload. The properties of the file are stored in <code>req.files.filehandle</code> and you save the file to the file system with <code>fs.rename</code> which comes from the fs module of nodejs and you get it with a <code>var fs = require('fs');</code>.</p>
+
+<p>The files are stored on the same server as everything else, while this is not optimal and a service like <a href="https://aws.amazon.com/s3/">S3</a> or a private fileserver should be used, this is small scale right now and when the usage grows an alternative file storage system can be explored.  All transfers happen using https and you can encrypt your file before it leaves your computer with a handy script called <a href="https://github.com/abemassry/wsend-gpg">wsend-gpg</a> which I describe later.</p>
 
 <h2>Client Side</h2>
 

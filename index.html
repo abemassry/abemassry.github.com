@@ -227,6 +227,8 @@
 
 <p>Express makes it really easy to handle the file upload. The properties of the file are stored in <code>req.files.filehandle</code> and you save the file to the file system with <code>fs.rename</code> which comes from the fs module of nodejs and you get it with a <code>var fs = require('fs');</code>.</p>
 
+<p>The files are stored on the same server as everything else, while this is not optimal and a service like <a href="https://aws.amazon.com/s3/">S3</a> or a private fileserver should be used, this is small scale right now and when the usage grows an alternative file storage system can be explored.  All transfers happen using https and you can encrypt your file before it leaves your computer with a handy script called <a href="https://github.com/abemassry/wsend-gpg">wsend-gpg</a> which I describe later.</p>
+
 <h2>Client Side</h2>
 
 <p>Now that we have a server setup with an API that accepts uploads and gives you a URL for a file we can do a lot of fun things on the client.  So the first thing to do was write a command line script to handle all of these API calls using curl.</p>
