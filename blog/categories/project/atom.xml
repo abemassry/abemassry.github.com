@@ -4,7 +4,7 @@
   <title><![CDATA[Category: project | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/project/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2014-04-15T12:19:36-04:00</updated>
+  <updated>2014-04-15T18:31:23-04:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -30,11 +30,11 @@
 
 <p>In New York City this would be your city block</p>
 
-<p>{% img https://wsend.net/b9deed6d28c44046fa9a5f904721aac9/nyc.jpg NYC %}</p>
+<p><img src="https://wsend.net/b9deed6d28c44046fa9a5f904721aac9/nyc.jpg" title="NYC" ></p>
 
 <p>but in Wyoming it would be the entire state</p>
 
-<p>{% img https://wsend.net/85f62e0e62730deb9ca9284ae08790f9/wyoming.jpg Wyoming %}.</p>
+<p><img src="https://wsend.net/85f62e0e62730deb9ca9284ae08790f9/wyoming.jpg" title="Wyoming" >.</p>
 
 <h2>How</h2>
 
@@ -44,7 +44,7 @@
 
 <p>OK so it all works like bubbles.  The bubbles are an area and when two peoples bubbles coalesce that becomes a larger bubble so you wont have people that are left out.</p>
 
-<p>{% img https://wsend.net/fcb24b1a984afad0668577e22e75020e/bubbles.jpg Bubbles %}</p>
+<p><img src="https://wsend.net/fcb24b1a984afad0668577e22e75020e/bubbles.jpg" title="Bubbles" ></p>
 
 <p>After there are over 50 people new bubbles can be formed and the visualization could be different colors.</p>
 
@@ -66,7 +66,7 @@
 
 <h2>Conclusion</h2>
 
-<p>I hope you like this app idea and support me in making it happen.</p>
+<p>I hope you like this app idea and support me in making it happen. Vote on it at: <a href="http://competition.coshx.com/ideas/near-field-messenger">The Coshx 50k Competition</a></p>
 ]]></content>
   </entry>
   
@@ -81,7 +81,7 @@
 
 <p>As any technical project I undertake, I like to explain the motivation behind the project.  What is the end state of the project? What is the final product supposed to look like? Most of the time I have an answer to these questions before I start.  With wsend the answer was clear, a command line program that gave you a URL for a file up to 10GB in size. It should be simple to install and quick to use and not require any type of complicated setup.  There are other command line tools for sending files but they either require me to put in additional information about where I am sending the file like scp, or I have to set this sort of thing up before I start.  So I had this idea in mind to scratch my own itch and hopefully you find it useful too. (More motivation also came from: <a href="http://xkcd.com/949/">http://xkcd.com/949/</a>).</p>
 
-<p><a href="http://xkcd.com/949/">{% img https://wsend.net/85a497041dfd921da6d5fca49ccc3caf/file_transfer.png %}</a></p>
+<p><a href="http://xkcd.com/949/"><img src="https://wsend.net/85a497041dfd921da6d5fca49ccc3caf/file_transfer.png"></a></p>
 
 <h2>Server Side</h2>
 

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: express | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/express/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2014-04-15T12:19:36-04:00</updated>
+  <updated>2014-04-15T18:31:23-04:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -26,124 +26,218 @@
 
 <p>For this code I'm using Node.js and mongoose to talk to mongodb, and jade to display.</p>
 
-<p>{% codeblock Set Up Schema - schema.js %}
-  var Likes = new Schema({</p>
-
-<pre><code>like_id: ObjectId,
-name: String,
-date_liked: Date,
-</code></pre>
-
-<p>  });
-  exports.Likes = mongoose.model('Likes', Likes);</p>
-
-<p>  var Comments = new Schema({</p>
-
-<pre><code>comment_id: ObjectId,
-user: String,
-user_photo: String,
-body: String,
-date_commented: Date,
-</code></pre>
-
-<p>  });
-  exports.Comments = mongoose.model('Comments', Comments);</p>
-
-<p>  var schema = new Schema({</p>
-
-<pre><code>blog_id: ObjectId,
-body: String,
-lang: String,
-title: String,
-date: Date,
-submitted_by: String,
-submitted_by_photo: String,
-likes: [Likes],
-comments: [Comments]
-</code></pre>
-
-<p>  });
-{% endcodeblock %}</p>
+<p><div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Set Up Schema - schema.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'>  <span class="kd">var</span> <span class="nx">Likes</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">like_id</span><span class="o">:</span> <span class="nx">ObjectId</span><span class="p">,</span>
+</span><span class='line'><span class="nx">name</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">date_liked</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
+</span><span class='line'>  <span class="nx">exports</span><span class="p">.</span><span class="nx">Likes</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Likes&#39;</span><span class="p">,</span> <span class="nx">Likes</span><span class="p">);</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">Comments</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">comment_id</span><span class="o">:</span> <span class="nx">ObjectId</span><span class="p">,</span>
+</span><span class='line'><span class="nx">user</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">user_photo</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">body</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">date_commented</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
+</span><span class='line'>  <span class="nx">exports</span><span class="p">.</span><span class="nx">Comments</span> <span class="o">=</span> <span class="nx">mongoose</span><span class="p">.</span><span class="nx">model</span><span class="p">(</span><span class="s1">&#39;Comments&#39;</span><span class="p">,</span> <span class="nx">Comments</span><span class="p">);</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="kd">var</span> <span class="nx">schema</span> <span class="o">=</span> <span class="k">new</span> <span class="nx">Schema</span><span class="p">({</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="nx">blog_id</span><span class="o">:</span> <span class="nx">ObjectId</span><span class="p">,</span>
+</span><span class='line'><span class="nx">body</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">lang</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">title</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">date</span><span class="o">:</span> <span class="nb">Date</span><span class="p">,</span>
+</span><span class='line'><span class="nx">submitted_by</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">submitted_by_photo</span><span class="o">:</span> <span class="nb">String</span><span class="p">,</span>
+</span><span class='line'><span class="nx">likes</span><span class="o">:</span> <span class="p">[</span><span class="nx">Likes</span><span class="p">],</span>
+</span><span class='line'><span class="nx">comments</span><span class="o">:</span> <span class="p">[</span><span class="nx">Comments</span><span class="p">]</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>The main schema is the "var schema" this is the blog post.  The blog post contains likes and comments, of each there will be many.  Those are stored in objects and there can be multiple objects in each of the likes and comments.  The advantage of this is that you can make one database call and get all the information about a post at once, so you need less application to database communication.  And it is also easier to understand when you think about this.  For example you can add a tag schema store in another object and it can have an arbitrary number of tags.</p>
 
 <h3>2. Reading nested Data out from mongodb</h3>
 
 <p>Here I'm using an express app to read the data out and send it to a jade file for displaying.
-{% codeblock Reading data from mongodb in nodejs using mongoose  - read.js %}
-app.get('/blog/:id', function(req, res){</p>
-
-<pre><code>if (req.user) {
-  var username = req.user.username;
-}
-//get the example
-models.posts.findById(req.params.id, function(err, data){
-  if (data) {
-    models.users.findOne({name: username}, function(err, userdata){
-     //render the view page
-     res.render('blog.jade', {
-         locals: {
-           title: data.title,
-           page: '',
-           article: data,
-           user: username,
-           userdata: userdata
-         }
-     });
-    });
-  } else {
-    res.redirect('/404');
-  }
-});
-</code></pre>
-
-<p>  });
-{% endcodeblock %}</p>
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Reading data from mongodb in nodejs using mongoose  - read.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">app</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;/blog/:id&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="kd">var</span> <span class="nx">username</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">username</span><span class="p">;</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="c1">//get the example</span>
+</span><span class='line'><span class="nx">models</span><span class="p">.</span><span class="nx">posts</span><span class="p">.</span><span class="nx">findById</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">data</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">data</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">models</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="nx">username</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">userdata</span><span class="p">){</span>
+</span><span class='line'>     <span class="c1">//render the view page</span>
+</span><span class='line'>     <span class="nx">res</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="s1">&#39;blog.jade&#39;</span><span class="p">,</span> <span class="p">{</span>
+</span><span class='line'>         <span class="nx">locals</span><span class="o">:</span> <span class="p">{</span>
+</span><span class='line'>           <span class="nx">title</span><span class="o">:</span> <span class="nx">data</span><span class="p">.</span><span class="nx">title</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">page</span><span class="o">:</span> <span class="s1">&#39;&#39;</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">article</span><span class="o">:</span> <span class="nx">data</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">user</span><span class="o">:</span> <span class="nx">username</span><span class="p">,</span>
+</span><span class='line'>           <span class="nx">userdata</span><span class="o">:</span> <span class="nx">userdata</span>
+</span><span class='line'>         <span class="p">}</span>
+</span><span class='line'>     <span class="p">});</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>    <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/404&#39;</span><span class="p">);</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">});</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>There are no differences here reading from a mongodb doc that has nested data vs non nested data.</p>
 
 <h3>3. Output the data in jade.</h3>
 
 <p>There are two each loops that run through the nested data.  If there are multiple nested data on a page, like the main page of the blog, then you can loop through the blog articles and then have a sub loop for each of the comment sections.
-{% codeblock Displaying nested data in jade  - blog.jade %}
-- each like in article.likes
-  - i++;
-button.btn.like(type="button", id="like_#{article.id}")
-  i.icon-thumbs-up
-  | Like
-- each comment in article.comments
-  - j++;
-{% endcodeblock %}</p>
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>Displaying nested data in jade  - blog.jade </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+</pre></td><td class='code'><pre><code class='jade'><span class='line'><span class="p">-</span> <span class="n">each</span> <span class="n">like</span> <span class="n">in</span> <span class="n">article</span><span class="o">.</span><span class="n">likes</span>
+</span><span class='line'>  <span class="p">-</span> <span class="n">i</span><span class="o">++;</span>
+</span><span class='line'><span class="nt">button</span><span class="nc">.btn.like</span>(<span class="na">type=</span><span class="s">&quot;button&quot;</span><span class="err">,</span> <span class="na">id=</span><span class="s">&quot;like_#{article.id}&quot;</span>)
+</span><span class='line'>  <span class="nt">i</span><span class="nc">.icon-thumbs-up</span>
+</span><span class='line'>  | Like
+</span><span class='line'><span class="p">-</span> <span class="n">each</span> <span class="n">comment</span> <span class="n">in</span> <span class="n">article</span><span class="o">.</span><span class="n">comments</span>
+</span><span class='line'>  <span class="p">-</span> <span class="n">j</span><span class="o">++;</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <h3>4. Posting data to mongodb</h3>
 
 <p>In order for the app to be useful there has to be some way for users to like and comment on articles.  Here is an example of an express route for commenting on an article.
-{% codeblock comment on an article express route  - comment.js %}
-app.post('/comment', function(req, res){</p>
-
-<pre><code>if (req.user) {
-  models.users.findOne({name: req.user.username}, function(err, userdata){
-    var picture = userdata.photo;
-    var now = new Date();
-    blog_id = req.param('blog_id');
-    models.posts.findById(blog_id, function(err, blog){
-      if (err) return handleError(err);
-      blog.comments.push({user: req.user.username, user_photo: picture, body: req.param('comment'), date_commented: now});
-      var doc = blog.comments[0];
-      console.log(doc);
-      blog.save(function(err) {
-        console.log('error check');
-        if(err) { throw err; }
-        console.log('saved');
-        res.redirect('/blog/'+blog_id);
-      });
-    });
-  });
-}
-</code></pre>
-
-<p>  });
-{% endcodeblock %}</p>
+<div class='bogus-wrapper'><notextile><figure class='code'><figcaption><span>comment on an article express route  - comment.js </span></figcaption>
+ <div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+</pre></td><td class='code'><pre><code class='js'><span class='line'><span class="nx">app</span><span class="p">.</span><span class="nx">post</span><span class="p">(</span><span class="s1">&#39;/comment&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span><span class="o">&lt;</span><span class="err">/p&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">pre</span><span class="o">&gt;&lt;</span><span class="nx">code</span><span class="o">&gt;</span><span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">models</span><span class="p">.</span><span class="nx">users</span><span class="p">.</span><span class="nx">findOne</span><span class="p">({</span><span class="nx">name</span><span class="o">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">username</span><span class="p">},</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">userdata</span><span class="p">){</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">picture</span> <span class="o">=</span> <span class="nx">userdata</span><span class="p">.</span><span class="nx">photo</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">now</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Date</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">blog_id</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;blog_id&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">models</span><span class="p">.</span><span class="nx">posts</span><span class="p">.</span><span class="nx">findById</span><span class="p">(</span><span class="nx">blog_id</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">blog</span><span class="p">){</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">handleError</span><span class="p">(</span><span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">blog</span><span class="p">.</span><span class="nx">comments</span><span class="p">.</span><span class="nx">push</span><span class="p">({</span><span class="nx">user</span><span class="o">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">user</span><span class="p">.</span><span class="nx">username</span><span class="p">,</span> <span class="nx">user_photo</span><span class="o">:</span> <span class="nx">picture</span><span class="p">,</span> <span class="nx">body</span><span class="o">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;comment&#39;</span><span class="p">),</span> <span class="nx">date_commented</span><span class="o">:</span> <span class="nx">now</span><span class="p">});</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">doc</span> <span class="o">=</span> <span class="nx">blog</span><span class="p">.</span><span class="nx">comments</span><span class="p">[</span><span class="mi">0</span><span class="p">];</span>
+</span><span class='line'>      <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">doc</span><span class="p">);</span>
+</span><span class='line'>      <span class="nx">blog</span><span class="p">.</span><span class="nx">save</span><span class="p">(</span><span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;error check&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span> <span class="k">throw</span> <span class="nx">err</span><span class="p">;</span> <span class="p">}</span>
+</span><span class='line'>        <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;saved&#39;</span><span class="p">);</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/blog/&#39;</span><span class="o">+</span><span class="nx">blog_id</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">});</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">});</span>
+</span><span class='line'><span class="p">}</span>
+</span><span class='line'><span class="o">&lt;</span><span class="err">/code&gt;&lt;/pre&gt;</span>
+</span><span class='line'>
+</span><span class='line'><span class="o">&lt;</span><span class="nx">p</span><span class="o">&gt;</span>  <span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure></notextile></div></p>
 
 <p>If you see an area where the code can be improved let me know.  I'd like to incorporate all of this into a framework at some point.</p>
 ]]></content>

@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javascript | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2014-04-15T12:19:36-04:00</updated>
+  <updated>2014-04-15T18:31:23-04:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -24,7 +24,7 @@
 
 <p>As any technical project I undertake, I like to explain the motivation behind the project.  What is the end state of the project? What is the final product supposed to look like? Most of the time I have an answer to these questions before I start.  With wsend the answer was clear, a command line program that gave you a URL for a file up to 10GB in size. It should be simple to install and quick to use and not require any type of complicated setup.  There are other command line tools for sending files but they either require me to put in additional information about where I am sending the file like scp, or I have to set this sort of thing up before I start.  So I had this idea in mind to scratch my own itch and hopefully you find it useful too. (More motivation also came from: <a href="http://xkcd.com/949/">http://xkcd.com/949/</a>).</p>
 
-<p><a href="http://xkcd.com/949/">{% img https://wsend.net/85a497041dfd921da6d5fca49ccc3caf/file_transfer.png %}</a></p>
+<p><a href="http://xkcd.com/949/"><img src="https://wsend.net/85a497041dfd921da6d5fca49ccc3caf/file_transfer.png"></a></p>
 
 <h2>Server Side</h2>
 
