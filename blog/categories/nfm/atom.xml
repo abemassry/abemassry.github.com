@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+
+  <title><![CDATA[Category: NFM | Abe Massry]]></title>
+  <link href="http://abemassry.com/blog/categories/nfm/atom.xml" rel="self"/>
+  <link href="http://abemassry.com/"/>
+  <updated>2014-04-15T12:19:36-04:00</updated>
+  <id>http://abemassry.com/</id>
+  <author>
+    <name><![CDATA[Abe Massry]]></name>
+    
+  </author>
+  <generator uri="http://octopress.org/">Octopress</generator>
+
+  
+  <entry>
+    <title type="html"><![CDATA[Near Field Messenger - Connect with People Around You]]></title>
+    <link href="http://abemassry.com/blog/2014/04/15/near-field-messenger/"/>
+    <updated>2014-04-15T10:48:00-04:00</updated>
+    <id>http://abemassry.com/blog/2014/04/15/near-field-messenger</id>
+    <content type="html"><![CDATA[<p>Near Field Messenger (NFM) - Connect with People Around You.  I have had this idea for a while and I wanted to get it out there to see what people thought.  Leave me your feedback and feel free to ask me questions if this is something you're interested in learning more about.</p>
+
+<h2>The Problem</h2>
+
+<p>After I graduated college I found myself far away from friends. Facebook wasn't really a help because it was a directory of all my friends that live too far away to hang out on a regular basis. Twitter is pretty good at finding new people that you get along with, but half of my twitter friends are on the other side of the country.  What if there was a way to connect with people that lived close by?</p>
+
+<h2>The Solution</h2>
+
+<p>Near Field Messenger.  What if you could instantly talk to the closest 50 people around you in a shared chat room, right from your smartphone?</p>
+
+<p>In New York City this would be your city block</p>
+
+<p>{% img https://wsend.net/b9deed6d28c44046fa9a5f904721aac9/nyc.jpg NYC %}</p>
+
+<p>but in Wyoming it would be the entire state</p>
+
+<p>{% img https://wsend.net/85f62e0e62730deb9ca9284ae08790f9/wyoming.jpg Wyoming %}.</p>
+
+<h2>How</h2>
+
+<p>How would something like this work? What if there is one person outside the 50 people and there is no one else around them?  The idea I had was to start out with a small area and use fuzzy logic, so that if there is 50 - 60 people that's ok.  Why limit it? Because you want to keep it local.</p>
+
+<h3>Really, How?</h3>
+
+<p>OK so it all works like bubbles.  The bubbles are an area and when two peoples bubbles coalesce that becomes a larger bubble so you wont have people that are left out.</p>
+
+<p>{% img https://wsend.net/fcb24b1a984afad0668577e22e75020e/bubbles.jpg Bubbles %}</p>
+
+<p>After there are over 50 people new bubbles can be formed and the visualization could be different colors.</p>
+
+<p>The point is to get people that are physically close, chatting with each other just so they have someone to talk to and possibly hang out with.</p>
+
+<p>After they meet people they would like to hang out with there can be private messages and you should be able to import your contacts and make new contacts.</p>
+
+<h2>Why</h2>
+
+<p>After people graduate highschool and move away or graduate college they lose touch with some friends.  They still keep those friends but they are far away and don't get to see each other in person that much. And it gets really lonely.  The same thing happened to me and I've been really lonely and searching for friends, but outside of a school environment it's hard to approach people and it's hard to find people that are free and want to hang out, where you don't have to drive really far to get there.  I don't live in a city and I feel like there are a lot of other people out there who are lonely too and just want someone to talk to.</p>
+
+<h2>Other apps out there / Competitors</h2>
+
+<p><a href="http://meetup.com">meetup.com</a> is there and you can find people in your local area who are interested in the same things you are.  The meeting times are formal and there is a lot more to do in cities than in the suburbs or rural areas.</p>
+
+<p><a href="https://itunes.apple.com/us/app/popcorn-messaging/id718416705?mt=8">Popcorn Messaging</a> is an app that is similar but only has a 1 mile radius and is kind of like a bulletin board where people can leave messages if no one else is actively using the app in your area.  If Popcorn was to change their app a little it might be similar to NFM.</p>
+
+<p><a href="https://itunes.apple.com/us/app/ralph-chat/id782873767?mt=8">Ralph Chat</a> is an app that is similar but it has a radius as well, it does have global chats so there are people to talk to but they might not be in your area.  If they changed their app or added a semi-local chat room it might be similar to NFM.</p>
+
+<h2>Conclusion</h2>
+
+<p>I hope you like this app idea and support me in making it happen.</p>
+]]></content>
+  </entry>
+  
+</feed>
