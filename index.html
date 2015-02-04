@@ -9,7 +9,7 @@
   <meta name="author" content="Abe Massry">
 
   
-  <meta name="description" content="Near Field Messenger (NFM) - Connect with People Around You. I have had this idea for a while and I wanted to get it out there to see what people &hellip;">
+  <meta name="description" content="Building a webapp with LevelDB. I had heard LevelDB was useful as a key value store with good performance, and I thought Express Polls might be a &hellip;">
   
 
   <!-- http://t.co/dKP3o1e -->
@@ -76,6 +76,387 @@
     <div id="content">
       <div class="blog-index">
   
+  
+  
+    <article>
+      
+  <header>
+    
+      <h1 class="entry-title"><a href="/blog/2015/02/04/building-a-webapp-with-leveldb/">Building a Webapp With LevelDB</a></h1>
+    
+    
+      <p class="meta">
+        
+
+
+
+
+
+
+
+
+  
+
+
+<time datetime="2015-02-04T09:35:00-05:00" pubdate data-updated="true">Feb 4<span>th</span>, 2015</time>
+        
+      </p>
+    
+  </header>
+
+
+  <div class="entry-content"><p>Building a webapp with LevelDB. I had heard LevelDB was useful as a key value store with good performance, and I thought <a href="http://expresspolls.com">Express Polls</a> might be a good application to use this type of database.  I&#8217;ll go through a few of the steps I used to get it to work. The code is available on <a href="https://github.com">GitHub</a> at <a href="https://github.com/abemassry/express-polls">express-polls</a></p>
+
+<h2>Motivation</h2>
+
+<p>I wanted an online poll that didn&#8217;t require a login. I had used a flash based one before but that was years ago. I also wanted the values to update as people were voting so I knew I wanted to use Socket.IO to handle that. I thought LevelDB might be a good solution to store the data. This was my first attempt at using LevelDB so I thought I would document it here. The only feature of the database I haven&#8217;t looked into is deleting data, so this post will only cover writing and reading.</p>
+
+<h2>Writing to LevelDB</h2>
+
+<p>I started with <a href="https://github.com/rvagg/node-levelup">node-levelup</a>, I heard it was a really good library so I thought I would start there. The readme is very well written with examples and is very clear to understand.  When I actually wrote the webapp the syntax is almost exactly like the examples here.</p>
+
+<p>To start a poll a question and a list of answers are required, this is taken from the user and submitted via POST. Since no login is required a UID is generated and stored with HTML5 LocalStorage on the client.</p>
+
+<p>In order to store different types of values with LevelDB you have to namespace the keys.  This is like different tables in SQL. LevelDB organizes the keys in alphabetical order. So the first namespace I used was the poll. Each poll is going to be unique so in LevelDB there are a few libraries to help namespace the keys properly. I found doing the manual way worked best for me so I spaced them with a &#8216;!&#8217;. There are a few downsides to this such as it&#8217;s a typeable character and you might open yourself up to database injection if you take user data and write to a key with it. I don&#8217;t do that for this webapp but it should be considered an area for improvement.</p>
+
+<p>pact is javascript file that contains most of my requires and then I export them using the nodejs builting export.</p>
+
+<figure class='code'><figcaption><span>Save a key and value to LevelDB</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">value</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">question</span><span class="o">:</span> <span class="nx">question</span><span class="p">,</span> <span class="nx">answers</span><span class="o">:</span> <span class="nx">answers</span><span class="p">,</span> <span class="nx">user</span><span class="o">:</span> <span class="nx">uid</span><span class="p">};</span>
+</span><span class='line'><span class="kd">var</span> <span class="nx">key</span> <span class="o">=</span> <span class="nx">pact</span><span class="p">.</span><span class="nx">getId</span><span class="p">();</span>
+</span><span class='line'><span class="nx">pact</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;poll!&#39;</span><span class="o">+</span><span class="nx">key</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">value</span><span class="p">),</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>  <span class="nx">res</span><span class="p">.</span><span class="nx">redirect</span><span class="p">(</span><span class="s1">&#39;/poll/&#39;</span><span class="o">+</span><span class="nx">key</span><span class="p">);</span>
+</span><span class='line'><span class="p">});</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>I store all the data as strings in JSON format.  I found this was the easiest way for me to interact with javascript objects.</p>
+
+<p>The entire express route is here in the <a href="https://github.com/abemassry/express-polls/blob/master/routes/create.js">create.js</a> file.</p>
+
+<h2>Reading from LevelDB</h2>
+
+<p>Reading from LevelDB is a little more involved for this application so I will be showing the entire poll route here.</p>
+
+<p>Votes are stored with the &#8216;vote!&#8217; namespace, which I will go over writing them in <a href="#reading_and_writing_from_to_leveldb">Reading and Writing from/to LevelDB</a>.</p>
+
+<ol>
+<li>Get the poll that you are asking for, once you do that you can get votes associated with that poll.</li>
+<li>create a readStream to get a range of values.  This is in <a href="https://github.com/rvagg/node-levelup">node-levelup</a>. Each item is handled with the <code>.on('data'</code> event.  We push each vote to an array that will be then added to a JSON string and sent to the browser.</li>
+<li>When the <code>.on('end'</code> event comes through we total everything up because theres no more votes and send everything to the browser.</li>
+</ol>
+
+
+<figure class='code'><figcaption><span>Read from LevelDB and send it to the browser</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">pact</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../pact.js&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'><span class="nx">exports</span><span class="p">.</span><span class="nx">main</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span>
+</span><span class='line'>  <span class="nx">pact</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;poll!&#39;</span><span class="o">+</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>    <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="o">+</span><span class="s1">&#39; does not exist in poll.js&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="o">+</span><span class="s1">&#39; found&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">pollId</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">;</span>
+</span><span class='line'>    <span class="c1">//voteData: voteData,</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">data</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">value</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">question</span> <span class="o">=</span> <span class="nx">data</span><span class="p">.</span><span class="nx">question</span><span class="p">;</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">stats</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+</span><span class='line'>    <span class="nx">pact</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">createReadStream</span><span class="p">({</span><span class="nx">start</span><span class="o">:</span> <span class="s1">&#39;vote!&#39;</span><span class="o">+</span><span class="nx">pollId</span> <span class="o">+</span> <span class="s1">&#39;!&#39;</span><span class="p">,</span>
+</span><span class='line'>                                <span class="nx">end</span><span class="o">:</span> <span class="s1">&#39;vote!&#39;</span><span class="o">+</span><span class="nx">pollId</span> <span class="o">+</span> <span class="s1">&#39;!~&#39;</span>
+</span><span class='line'>                            <span class="p">})</span>
+</span><span class='line'>      <span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">){</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">vote</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">value</span><span class="p">).</span><span class="nx">vote</span><span class="p">;</span>
+</span><span class='line'>        <span class="nx">stats</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">vote</span><span class="p">);</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>      <span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">statsCount</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">stat</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">stats</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">stat</span> <span class="o">=</span> <span class="nx">statsCount</span><span class="p">[</span><span class="nx">stats</span><span class="p">[</span><span class="nx">i</span><span class="p">]];</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="nx">stat</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">statsCount</span><span class="p">[</span><span class="nx">stats</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">stat</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">statsCount</span><span class="p">[</span><span class="nx">stats</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">pollAnswers</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">value</span><span class="p">).</span><span class="nx">answers</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">voteData</span> <span class="o">=</span> <span class="p">[];</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>        <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">pollAnswers</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]])</span> <span class="p">{</span>
+</span><span class='line'>            <span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>          <span class="p">}</span>
+</span><span class='line'>          <span class="nx">voteData</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span> <span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span>
+</span><span class='line'>                          <span class="nx">data</span><span class="o">:</span> <span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span>
+</span><span class='line'>                        <span class="p">};</span>
+</span><span class='line'>          <span class="nx">total</span> <span class="o">=</span> <span class="nx">total</span> <span class="o">+</span> <span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]];</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">jsonPayload</span> <span class="o">=</span> <span class="p">{</span><span class="nx">total</span><span class="o">:</span> <span class="nx">total</span><span class="p">,</span> <span class="nx">voteData</span><span class="o">:</span> <span class="nx">voteData</span><span class="p">};</span>
+</span><span class='line'>        <span class="kd">var</span> <span class="nx">jsonPayloadString</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">jsonPayload</span><span class="p">);</span>
+</span><span class='line'>        <span class="k">if</span> <span class="p">(</span><span class="nx">question</span> <span class="o">==</span> <span class="s1">&#39;&#39;</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="nx">question</span> <span class="o">=</span> <span class="s1">&#39;Untitled&#39;</span><span class="p">;</span>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>        <span class="nx">res</span><span class="p">.</span><span class="nx">render</span><span class="p">(</span><span class="s1">&#39;poll&#39;</span><span class="p">,</span> <span class="p">{</span> <span class="nx">title</span><span class="o">:</span> <span class="nx">question</span><span class="p">,</span>
+</span><span class='line'>                             <span class="nx">pollId</span><span class="o">:</span> <span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="p">,</span>
+</span><span class='line'>                             <span class="nx">data</span><span class="o">:</span> <span class="nx">data</span><span class="p">,</span>
+</span><span class='line'>                             <span class="nx">jsonData</span><span class="o">:</span> <span class="nx">jsonPayloadString</span><span class="p">,</span>
+</span><span class='line'>                             <span class="nx">voteData</span><span class="o">:</span> <span class="nx">voteData</span><span class="p">,</span>
+</span><span class='line'>                             <span class="nx">render</span><span class="o">:</span> <span class="kc">true</span>
+</span><span class='line'>                           <span class="p">}</span>
+</span><span class='line'>        <span class="p">);</span>
+</span><span class='line'>      <span class="p">})</span>
+</span><span class='line'>    <span class="p">});</span> <span class="c1">// db.get poll end</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>The jsonPayload is used to render the plot of votes. It&#8217;s turned into a string so it can be sent over HTTP.</p>
+
+<p>The namespace for each vote key takes the format of &#8216;vote!&#8217; to signify it is a vote <code>pollId</code> which is the poll that vote belongs to and the last part of the <code>createReadStream</code> function is the start which is &#8216;!&#8217; and has a low ascii value to the end &#8216;~&#8217; which has a high ascii value.  The ids I picked to use are all hexadecimal (0-9a-f) so ~ does not show up in the key structure and ! can safely be used as the delimiter for this application.</p>
+
+<p>The documentation goes over createReamStream, but I understand it as it cycles through each value and sends out events.  The .on statement listens for those events, when there is data it is added.  When there is no more data the end event comes through and theres no more data and it is sent to the client.  In SQL this might be equivalent to the <code>SELECT</code> statement.</p>
+
+<h2><a name="reading_and_writing_from_to_leveldb"></a>Reading and Writing from/to LevelDB</h2>
+
+<p>The vote route does a lot so the entire file will be listed here as well.</p>
+
+<ol>
+<li>The same as last time we need to get the pollId</li>
+<li>We have already checked if this UID had voted before because the view would not display the vote buttons to them and would switch straight to the rendering of the poll graph if they had, so we can store this vote right to the database.</li>
+<li>Storing the vote is simple, it&#8217;s the db.put which we went over.</li>
+<li>After the new vote is stored the data has to be retrieved on the current voting and pushed out to any clients listening on Socket.IO.  This data is also used in rendering the poll after the vote has taken place.</li>
+<li>The data is tallied like it was before, it is pushed out to Socket.IO clients and returned to the user to render the poll.</li>
+</ol>
+
+
+<figure class='code'><figcaption><span>Reading and Writing with LevelDB</span></figcaption><div class="highlight"><table><tr><td class="gutter"><pre class="line-numbers"><span class='line-number'>1</span>
+<span class='line-number'>2</span>
+<span class='line-number'>3</span>
+<span class='line-number'>4</span>
+<span class='line-number'>5</span>
+<span class='line-number'>6</span>
+<span class='line-number'>7</span>
+<span class='line-number'>8</span>
+<span class='line-number'>9</span>
+<span class='line-number'>10</span>
+<span class='line-number'>11</span>
+<span class='line-number'>12</span>
+<span class='line-number'>13</span>
+<span class='line-number'>14</span>
+<span class='line-number'>15</span>
+<span class='line-number'>16</span>
+<span class='line-number'>17</span>
+<span class='line-number'>18</span>
+<span class='line-number'>19</span>
+<span class='line-number'>20</span>
+<span class='line-number'>21</span>
+<span class='line-number'>22</span>
+<span class='line-number'>23</span>
+<span class='line-number'>24</span>
+<span class='line-number'>25</span>
+<span class='line-number'>26</span>
+<span class='line-number'>27</span>
+<span class='line-number'>28</span>
+<span class='line-number'>29</span>
+<span class='line-number'>30</span>
+<span class='line-number'>31</span>
+<span class='line-number'>32</span>
+<span class='line-number'>33</span>
+<span class='line-number'>34</span>
+<span class='line-number'>35</span>
+<span class='line-number'>36</span>
+<span class='line-number'>37</span>
+<span class='line-number'>38</span>
+<span class='line-number'>39</span>
+<span class='line-number'>40</span>
+<span class='line-number'>41</span>
+<span class='line-number'>42</span>
+<span class='line-number'>43</span>
+<span class='line-number'>44</span>
+<span class='line-number'>45</span>
+<span class='line-number'>46</span>
+<span class='line-number'>47</span>
+<span class='line-number'>48</span>
+<span class='line-number'>49</span>
+<span class='line-number'>50</span>
+<span class='line-number'>51</span>
+<span class='line-number'>52</span>
+<span class='line-number'>53</span>
+<span class='line-number'>54</span>
+<span class='line-number'>55</span>
+<span class='line-number'>56</span>
+<span class='line-number'>57</span>
+<span class='line-number'>58</span>
+<span class='line-number'>59</span>
+<span class='line-number'>60</span>
+<span class='line-number'>61</span>
+<span class='line-number'>62</span>
+<span class='line-number'>63</span>
+<span class='line-number'>64</span>
+<span class='line-number'>65</span>
+<span class='line-number'>66</span>
+<span class='line-number'>67</span>
+<span class='line-number'>68</span>
+<span class='line-number'>69</span>
+<span class='line-number'>70</span>
+<span class='line-number'>71</span>
+<span class='line-number'>72</span>
+<span class='line-number'>73</span>
+<span class='line-number'>74</span>
+</pre></td><td class='code'><pre><code class='javascript'><span class='line'><span class="kd">var</span> <span class="nx">pact</span> <span class="o">=</span> <span class="nx">require</span><span class="p">(</span><span class="s1">&#39;../pact.js&#39;</span><span class="p">)</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'><span class="nx">exports</span><span class="p">.</span><span class="nx">main</span> <span class="o">=</span> <span class="kd">function</span><span class="p">(</span><span class="nx">req</span><span class="p">,</span> <span class="nx">res</span><span class="p">){</span>
+</span><span class='line'>  <span class="k">if</span> <span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;poll_id&#39;</span><span class="p">))</span> <span class="p">{</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">pollId</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;poll_id&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="kd">var</span> <span class="nx">uid</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;uid&#39;</span><span class="p">);</span>
+</span><span class='line'>    <span class="nx">pact</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">get</span><span class="p">(</span><span class="s1">&#39;poll!&#39;</span><span class="o">+</span><span class="nx">pollId</span><span class="p">,</span> <span class="kd">function</span> <span class="p">(</span><span class="nx">err</span><span class="p">,</span> <span class="nx">value</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>      <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">req</span><span class="p">.</span><span class="nx">params</span><span class="p">.</span><span class="nx">id</span><span class="o">+</span><span class="s1">&#39; does not exist in vote.js&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">voteId</span> <span class="o">=</span> <span class="nx">pact</span><span class="p">.</span><span class="nx">getId</span><span class="p">();</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">answer</span> <span class="o">=</span> <span class="nx">req</span><span class="p">.</span><span class="nx">param</span><span class="p">(</span><span class="s1">&#39;answer&#39;</span><span class="p">);</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">putValue</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">user</span><span class="o">:</span> <span class="nx">uid</span><span class="p">,</span> <span class="nx">vote</span><span class="o">:</span> <span class="nx">answer</span><span class="p">};</span>
+</span><span class='line'>      <span class="kd">var</span> <span class="nx">stats</span> <span class="o">=</span> <span class="k">new</span> <span class="nb">Array</span><span class="p">();</span>
+</span><span class='line'>      <span class="nx">pact</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">put</span><span class="p">(</span><span class="s1">&#39;vote!&#39;</span> <span class="o">+</span> <span class="nx">pollId</span> <span class="o">+</span> <span class="s1">&#39;!&#39;</span> <span class="o">+</span> <span class="nx">voteId</span><span class="p">,</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">putValue</span><span class="p">),</span>
+</span><span class='line'>        <span class="kd">function</span><span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>          <span class="k">if</span> <span class="p">(</span><span class="nx">err</span><span class="p">)</span> <span class="k">return</span> <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;db error&#39;</span><span class="p">,</span> <span class="nx">err</span><span class="p">);</span>
+</span><span class='line'>          <span class="c1">// get current poll stats</span>
+</span><span class='line'>          <span class="nx">pact</span><span class="p">.</span><span class="nx">db</span><span class="p">.</span><span class="nx">createReadStream</span><span class="p">({</span><span class="nx">start</span><span class="o">:</span> <span class="s1">&#39;vote!&#39;</span><span class="o">+</span><span class="nx">pollId</span> <span class="o">+</span> <span class="s1">&#39;!&#39;</span><span class="p">,</span>
+</span><span class='line'>                                      <span class="nx">end</span><span class="o">:</span> <span class="s1">&#39;vote!&#39;</span><span class="o">+</span><span class="nx">pollId</span> <span class="o">+</span> <span class="s1">&#39;!~&#39;</span>
+</span><span class='line'>                                  <span class="p">})</span>
+</span><span class='line'>            <span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;data&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">(</span><span class="nx">data</span><span class="p">){</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">vote</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">data</span><span class="p">.</span><span class="nx">value</span><span class="p">).</span><span class="nx">vote</span><span class="p">;</span>
+</span><span class='line'>              <span class="nx">stats</span><span class="p">.</span><span class="nx">push</span><span class="p">(</span><span class="nx">vote</span><span class="p">);</span>
+</span><span class='line'>            <span class="p">})</span>
+</span><span class='line'>            <span class="p">.</span><span class="nx">on</span><span class="p">(</span><span class="s1">&#39;end&#39;</span><span class="p">,</span> <span class="kd">function</span><span class="p">()</span> <span class="p">{</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">statsCount</span> <span class="o">=</span> <span class="p">{};</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">stat</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">stats</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="nx">stat</span> <span class="o">=</span> <span class="nx">statsCount</span><span class="p">[</span><span class="nx">stats</span><span class="p">[</span><span class="nx">i</span><span class="p">]];</span>
+</span><span class='line'>                <span class="k">if</span> <span class="p">(</span><span class="nx">stat</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="nx">statsCount</span><span class="p">[</span><span class="nx">stats</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span> <span class="o">=</span> <span class="nx">stat</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="nx">statsCount</span><span class="p">[</span><span class="nx">stats</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">pollAnswers</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">parse</span><span class="p">(</span><span class="nx">value</span><span class="p">).</span><span class="nx">answers</span><span class="p">;</span>
+</span><span class='line'>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">voteData</span> <span class="o">=</span> <span class="p">[];</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">total</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>              <span class="k">for</span> <span class="p">(</span><span class="kd">var</span> <span class="nx">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="nx">i</span><span class="o">&lt;</span><span class="nx">pollAnswers</span><span class="p">.</span><span class="nx">length</span><span class="p">;</span> <span class="nx">i</span><span class="o">++</span><span class="p">)</span> <span class="p">{</span>
+</span><span class='line'>                <span class="k">if</span><span class="p">(</span><span class="o">!</span><span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]])</span> <span class="p">{</span>
+</span><span class='line'>                  <span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+</span><span class='line'>                <span class="p">}</span>
+</span><span class='line'>                <span class="nx">voteData</span><span class="p">[</span><span class="nx">i</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span> <span class="nx">label</span><span class="o">:</span> <span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">],</span>
+</span><span class='line'>                                <span class="nx">data</span><span class="o">:</span> <span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]]</span>
+</span><span class='line'>                              <span class="p">};</span>
+</span><span class='line'>                <span class="nx">total</span> <span class="o">=</span> <span class="nx">total</span> <span class="o">+</span> <span class="nx">statsCount</span><span class="p">[</span><span class="nx">pollAnswers</span><span class="p">[</span><span class="nx">i</span><span class="p">]];</span>
+</span><span class='line'>              <span class="p">}</span>
+</span><span class='line'>              <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">);</span>
+</span><span class='line'>              <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39;total&#39;</span><span class="p">);</span>
+</span><span class='line'>              <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="nx">total</span><span class="p">);</span>
+</span><span class='line'>              <span class="nx">console</span><span class="p">.</span><span class="nx">log</span><span class="p">(</span><span class="s1">&#39; &#39;</span><span class="p">);</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">jsonPayload</span> <span class="o">=</span> <span class="p">{</span><span class="nx">total</span><span class="o">:</span> <span class="nx">total</span><span class="p">,</span> <span class="nx">voteData</span><span class="o">:</span> <span class="nx">voteData</span><span class="p">};</span>
+</span><span class='line'>              <span class="kd">var</span> <span class="nx">jsonPayloadString</span> <span class="o">=</span> <span class="nx">JSON</span><span class="p">.</span><span class="nx">stringify</span><span class="p">(</span><span class="nx">jsonPayload</span><span class="p">);</span>
+</span><span class='line'>              <span class="nx">pact</span><span class="p">.</span><span class="nx">io</span><span class="p">.</span><span class="nx">emit</span><span class="p">(</span><span class="nx">pollId</span><span class="p">,</span> <span class="nx">jsonPayloadString</span><span class="p">);</span>
+</span><span class='line'>              <span class="nx">res</span><span class="p">.</span><span class="nx">end</span><span class="p">(</span><span class="nx">jsonPayloadString</span><span class="p">);</span>
+</span><span class='line'>              <span class="c1">//var voteData = [</span>
+</span><span class='line'>              <span class="c1">//  { label: &quot;Polls&quot;,  data: 20},</span>
+</span><span class='line'>              <span class="c1">//  { label: &quot;Learning&quot;,  data: 50},</span>
+</span><span class='line'>              <span class="c1">//  { label: &quot;Fun&quot;,  data: 30}</span>
+</span><span class='line'>              <span class="c1">//];</span>
+</span><span class='line'>              <span class="c1">//res.end</span>
+</span><span class='line'>              <span class="c1">// update with websockets</span>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>
+</span><span class='line'>            <span class="p">})</span>
+</span><span class='line'>
+</span><span class='line'>        <span class="p">}</span>
+</span><span class='line'>      <span class="p">);</span>
+</span><span class='line'>    <span class="p">});</span>
+</span><span class='line'>  <span class="p">}</span>
+</span><span class='line'><span class="p">};</span>
+</span></code></pre></td></tr></table></div></figure>
+
+
+<p>This route is called with AJAX.</p>
+
+<h2>Future work</h2>
+
+<p>There are a lot of other moving parts to the webapp so the examples aren&#8217;t as simple as they could be, but I wanted to show what LevelDB looks like inside of a functioning webapp with other things going on as well.</p>
+
+<p>Using a different namespace separator, something like &#8216;x/00&#8217;. Couldn&#8217;t get that to work at the time but I would like to look into it more.</p>
+
+<p>This is not related to LevelDB but I have seen some inconsistencies with the HTML5 LocalStorage UID scheme and I would like to look into that further.</p>
+</div>
+  
+  
+
+
+    </article>
   
   
     <article>
@@ -1018,42 +1399,6 @@ I don&#8217;t think there should be any special options for this one but I might
 
     </article>
   
-  
-    <article>
-      
-  <header>
-    
-      <h1 class="entry-title"><a href="/blog/2012/10/23/observations-on-mashrd/">Observations on Mashrd</a></h1>
-    
-    
-      <p class="meta">
-        
-
-
-
-
-
-
-
-
-  
-
-
-<time datetime="2012-10-23T15:40:00-04:00" pubdate data-updated="true">Oct 23<span>rd</span>, 2012</time>
-        
-      </p>
-    
-  </header>
-
-
-  <div class="entry-content"><p>Just a quick observation, it seems like more stories that make it to the popular section are about either politics or Apple products.  I might make a chart and have graphs to back up my observations next time.  But it makes sense given the time of year it is and the election is happening in a week and Apple just unveiled more products.  Still there is a lot of news that doesn&#8217;t see the light of day.  Not sure if it&#8217;s a good thing or a bad thing.</p>
-</div>
-  
-  
-
-
-    </article>
-  
   <div class="pagination">
     
       <a class="prev" href="/blog/page/2/">&larr; Older</a>
@@ -1069,6 +1414,10 @@ I don&#8217;t think there should be any special options for this one but I might
   <ul id="recent_posts">
     
       <li class="post">
+        <a href="/blog/2015/02/04/building-a-webapp-with-leveldb/">Building a webapp with LevelDB</a>
+      </li>
+    
+      <li class="post">
         <a href="/blog/2014/04/15/near-field-messenger/">Near Field Messenger - Connect with People Around You</a>
       </li>
     
@@ -1082,10 +1431,6 @@ I don&#8217;t think there should be any special options for this one but I might
     
       <li class="post">
         <a href="/blog/2013/10/01/ntfs-on-osx-10-dot-7/">NTFS on OSX 10.7</a>
-      </li>
-    
-      <li class="post">
-        <a href="/blog/2013/09/09/wsend-twitter-card/">Wsend Twitter Card</a>
       </li>
     
   </ul>
@@ -1140,7 +1485,7 @@ I don&#8217;t think there should be any special options for this one but I might
     </div>
   </div>
   <footer role="contentinfo"><p>
-  Copyright &copy; 2014 - Abe Massry -
+  Copyright &copy; 2015 - Abe Massry -
   <span class="credit">Powered by <a href="http://octopress.org">Octopress</a></span>
 </p>
 

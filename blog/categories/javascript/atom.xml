@@ -4,7 +4,7 @@
   <title><![CDATA[Category: javascript | Abe Massry]]></title>
   <link href="http://abemassry.com/blog/categories/javascript/atom.xml" rel="self"/>
   <link href="http://abemassry.com/"/>
-  <updated>2014-04-15T18:32:20-04:00</updated>
+  <updated>2015-02-04T11:58:18-05:00</updated>
   <id>http://abemassry.com/</id>
   <author>
     <name><![CDATA[Abe Massry]]></name>
@@ -12,6 +12,228 @@
   </author>
   <generator uri="http://octopress.org/">Octopress</generator>
 
+  
+  <entry>
+    <title type="html"><![CDATA[Building a webapp with LevelDB]]></title>
+    <link href="http://abemassry.com/blog/2015/02/04/building-a-webapp-with-leveldb/"/>
+    <updated>2015-02-04T09:35:00-05:00</updated>
+    <id>http://abemassry.com/blog/2015/02/04/building-a-webapp-with-leveldb</id>
+    <content type="html"><![CDATA[<p>Building a webapp with LevelDB. I had heard LevelDB was useful as a key value store with good performance, and I thought <a href="http://expresspolls.com">Express Polls</a> might be a good application to use this type of database.  I'll go through a few of the steps I used to get it to work. The code is available on <a href="https://github.com">GitHub</a> at <a href="https://github.com/abemassry/express-polls">express-polls</a></p>
+
+<h2>Motivation</h2>
+
+<p>I wanted an online poll that didn't require a login. I had used a flash based one before but that was years ago. I also wanted the values to update as people were voting so I knew I wanted to use Socket.IO to handle that. I thought LevelDB might be a good solution to store the data. This was my first attempt at using LevelDB so I thought I would document it here. The only feature of the database I haven't looked into is deleting data, so this post will only cover writing and reading.</p>
+
+<h2>Writing to LevelDB</h2>
+
+<p>I started with <a href="https://github.com/rvagg/node-levelup">node-levelup</a>, I heard it was a really good library so I thought I would start there. The readme is very well written with examples and is very clear to understand.  When I actually wrote the webapp the syntax is almost exactly like the examples here.</p>
+
+<p>To start a poll a question and a list of answers are required, this is taken from the user and submitted via POST. Since no login is required a UID is generated and stored with HTML5 LocalStorage on the client.</p>
+
+<p>In order to store different types of values with LevelDB you have to namespace the keys.  This is like different tables in SQL. LevelDB organizes the keys in alphabetical order. So the first namespace I used was the poll. Each poll is going to be unique so in LevelDB there are a few libraries to help namespace the keys properly. I found doing the manual way worked best for me so I spaced them with a '!'. There are a few downsides to this such as it's a typeable character and you might open yourself up to database injection if you take user data and write to a key with it. I don't do that for this webapp but it should be considered an area for improvement.</p>
+
+<p>pact is javascript file that contains most of my requires and then I export them using the nodejs builting export.</p>
+
+<p>``` javascript Save a key and value to LevelDB
+var value = { question: question, answers: answers, user: uid};
+var key = pact.getId();
+pact.db.put('poll!'+key, JSON.stringify(value), function() {
+  res.redirect('/poll/'+key);
+});</p>
+
+<p>```</p>
+
+<p>I store all the data as strings in JSON format.  I found this was the easiest way for me to interact with javascript objects.</p>
+
+<p>The entire express route is here in the <a href="https://github.com/abemassry/express-polls/blob/master/routes/create.js">create.js</a> file.</p>
+
+<h2>Reading from LevelDB</h2>
+
+<p>Reading from LevelDB is a little more involved for this application so I will be showing the entire poll route here.</p>
+
+<p>Votes are stored with the 'vote!' namespace, which I will go over writing them in <a href="#reading_and_writing_from_to_leveldb">Reading and Writing from/to LevelDB</a>.</p>
+
+<ol>
+<li>Get the poll that you are asking for, once you do that you can get votes associated with that poll.</li>
+<li>create a readStream to get a range of values.  This is in <a href="https://github.com/rvagg/node-levelup">node-levelup</a>. Each item is handled with the <code>.on('data'</code> event.  We push each vote to an array that will be then added to a JSON string and sent to the browser.</li>
+<li>When the <code>.on('end'</code> event comes through we total everything up because theres no more votes and send everything to the browser.</li>
+</ol>
+
+
+<p>``` javascript Read from LevelDB and send it to the browser
+var pact = require('../pact.js')</p>
+
+<p>exports.main = function(req, res){
+  pact.db.get('poll!'+req.params.id, function (err, value) {</p>
+
+<pre><code>if (err) return console.log(req.params.id+' does not exist in poll.js');
+console.log(req.params.id+' found');
+var pollId = req.params.id;
+//voteData: voteData,
+var data = JSON.parse(value);
+var question = data.question;
+var stats = new Array();
+pact.db.createReadStream({start: 'vote!'+pollId + '!', 
+                            end: 'vote!'+pollId + '!~'
+                        })
+  .on('data', function(data){
+    var vote = JSON.parse(data.value).vote;
+    stats.push(vote);
+  })
+  .on('end', function() {
+
+    var statsCount = {};
+    var stat;
+    for (var i=0; i&lt;stats.length; i++) {
+      stat = statsCount[stats[i]];
+      if (stat) {
+        statsCount[stats[i]] = stat + 1;
+      } else {
+        statsCount[stats[i]] = 1;
+      }
+    }
+    var pollAnswers = JSON.parse(value).answers;
+
+    var voteData = [];
+    var total = 0;
+    for (var i=0; i&lt;pollAnswers.length; i++) {
+      if(!statsCount[pollAnswers[i]]) {
+        statsCount[pollAnswers[i]] = 0;
+      }
+      voteData[i] = { label: pollAnswers[i], 
+                      data: statsCount[pollAnswers[i]]
+                    };
+      total = total + statsCount[pollAnswers[i]];
+    }
+    var jsonPayload = {total: total, voteData: voteData};
+    var jsonPayloadString = JSON.stringify(jsonPayload);
+    if (question == '') {
+      question = 'Untitled';
+    }
+    res.render('poll', { title: question,
+                         pollId: req.params.id,
+                         data: data,
+                         jsonData: jsonPayloadString,
+                         voteData: voteData,
+                         render: true
+                       }
+    );
+  })
+}); // db.get poll end
+</code></pre>
+
+<p>};
+```
+The jsonPayload is used to render the plot of votes. It's turned into a string so it can be sent over HTTP.</p>
+
+<p>The namespace for each vote key takes the format of 'vote!' to signify it is a vote <code>pollId</code> which is the poll that vote belongs to and the last part of the <code>createReadStream</code> function is the start which is '!' and has a low ascii value to the end '~' which has a high ascii value.  The ids I picked to use are all hexadecimal (0-9a-f) so ~ does not show up in the key structure and ! can safely be used as the delimiter for this application.</p>
+
+<p>The documentation goes over createReamStream, but I understand it as it cycles through each value and sends out events.  The .on statement listens for those events, when there is data it is added.  When there is no more data the end event comes through and theres no more data and it is sent to the client.  In SQL this might be equivalent to the <code>SELECT</code> statement.</p>
+
+<h2><a name="reading_and_writing_from_to_leveldb"></a>Reading and Writing from/to LevelDB</h2>
+
+<p>The vote route does a lot so the entire file will be listed here as well.</p>
+
+<ol>
+<li>The same as last time we need to get the pollId</li>
+<li>We have already checked if this UID had voted before because the view would not display the vote buttons to them and would switch straight to the rendering of the poll graph if they had, so we can store this vote right to the database.</li>
+<li>Storing the vote is simple, it's the db.put which we went over.</li>
+<li>After the new vote is stored the data has to be retrieved on the current voting and pushed out to any clients listening on Socket.IO.  This data is also used in rendering the poll after the vote has taken place.</li>
+<li>The data is tallied like it was before, it is pushed out to Socket.IO clients and returned to the user to render the poll.</li>
+</ol>
+
+
+<p>``` javascript Reading and Writing with LevelDB</p>
+
+<p>var pact = require('../pact.js')</p>
+
+<p>exports.main = function(req, res){
+  if (req.param('poll_id')) {</p>
+
+<pre><code>var pollId = req.param('poll_id');
+var uid = req.param('uid');
+pact.db.get('poll!'+pollId, function (err, value) {
+  if (err) return console.log(req.params.id+' does not exist in vote.js');
+  var voteId = pact.getId();
+  var answer = req.param('answer');
+  var putValue = { user: uid, vote: answer};
+  var stats = new Array();
+  pact.db.put('vote!' + pollId + '!' + voteId, JSON.stringify(putValue), 
+    function(err) {
+      if (err) return console.log('db error', err);
+      // get current poll stats
+      pact.db.createReadStream({start: 'vote!'+pollId + '!', 
+                                  end: 'vote!'+pollId + '!~'
+                              })
+        .on('data', function(data){
+          var vote = JSON.parse(data.value).vote;
+          stats.push(vote);
+        })
+        .on('end', function() {
+
+          var statsCount = {};
+          var stat;
+          for (var i=0; i&lt;stats.length; i++) {
+            stat = statsCount[stats[i]];
+            if (stat) {
+              statsCount[stats[i]] = stat + 1;
+            } else {
+              statsCount[stats[i]] = 1;
+            }
+          }
+          var pollAnswers = JSON.parse(value).answers;
+
+          var voteData = [];
+          var total = 0;
+          for (var i=0; i&lt;pollAnswers.length; i++) {
+            if(!statsCount[pollAnswers[i]]) {
+              statsCount[pollAnswers[i]] = 0;
+            }
+            voteData[i] = { label: pollAnswers[i], 
+                            data: statsCount[pollAnswers[i]]
+                          };
+            total = total + statsCount[pollAnswers[i]];
+          }
+          console.log(' ');
+          console.log('total');
+          console.log(total);
+          console.log(' ');
+          var jsonPayload = {total: total, voteData: voteData};
+          var jsonPayloadString = JSON.stringify(jsonPayload);
+          pact.io.emit(pollId, jsonPayloadString);
+          res.end(jsonPayloadString);
+          //var voteData = [
+          //  { label: "Polls",  data: 20},
+          //  { label: "Learning",  data: 50},
+          //  { label: "Fun",  data: 30}
+          //];
+          //res.end
+          // update with websockets
+
+
+
+        })
+
+    }
+  );
+});
+</code></pre>
+
+<p>  }
+};
+```</p>
+
+<p>This route is called with AJAX.</p>
+
+<h2>Future work</h2>
+
+<p>There are a lot of other moving parts to the webapp so the examples aren't as simple as they could be, but I wanted to show what LevelDB looks like inside of a functioning webapp with other things going on as well.</p>
+
+<p>Using a different namespace separator, something like 'x/00'. Couldn't get that to work at the time but I would like to look into it more.</p>
+
+<p>This is not related to LevelDB but I have seen some inconsistencies with the HTML5 LocalStorage UID scheme and I would like to look into that further.</p>
+]]></content>
+  </entry>
   
   <entry>
     <title type="html"><![CDATA[Building wsend - A Command Line Tool to Easily Send Files]]></title>
